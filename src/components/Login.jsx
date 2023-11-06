@@ -1,6 +1,10 @@
 import React, { useContext, useState } from "react";
 import { Form, Input, Button, Typography, Card } from "antd";
 import { MyContext } from "../contexts/MyContext";
+import Logo from "../assets/logo_xl.png";
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRightToBracket } from '@fortawesome/free-solid-svg-icons';
 
 function Login() {
   const { toggleNav, loginUser, isLoggedIn } = useContext(MyContext);
@@ -61,6 +65,8 @@ function Login() {
   }
 
   return (
+   <div style={{display: 'flex', gap: '50px'}}>
+    <img src={Logo} alt="Logo" style={{ width: '100%', maxWidth: '300px', margin: '0 auto', display: 'block' }} />
     <Card
       title="Login"
       bordered={true}
@@ -83,18 +89,20 @@ function Login() {
         {errorMsg}
         {successMsg}
         <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-          <Button type="primary" htmlType="submit" style={{ width: '50%' }}>
-            Entrar
+          <Button type="primary" htmlType="submit" style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center',width: '50%' }}>
+            Entrar <FontAwesomeIcon icon={faRightToBracket} />
           </Button>
         </div>
 
       </Form>
-      <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+      {/* <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
         <Button onClick={toggleNav} variant="outlined" style={{ width: '50%' }}>
           Cadastrar
         </Button>
-      </div>
+      </div> */}
     </Card>
+   </div>
+    
   );
 }
 

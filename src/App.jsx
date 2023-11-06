@@ -36,7 +36,7 @@ function WithAuthentication({ children }) {
 const theme = {
   token: {
     colorPrimary: "#E05297",
-    colorSuccess: "#F3BAD6",
+    colorSuccess: "#52c41a",
     colorWarning: "#f5be0b",
     colorError: "#f67c7e",
     colorInfo: "#FAD9E6",
