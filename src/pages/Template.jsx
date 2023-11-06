@@ -38,7 +38,7 @@ const Template = (props) => {
           mode="inline"
           defaultSelectedKeys={['1']}
         >
-         
+
           <Menu.Item key="1" icon={<HomeOutlined />}>
             <Link to={`${import.meta.env.VITE_REACT_APP_PATH}painel/venda`}>Venda</Link>
           </Menu.Item>
@@ -47,7 +47,7 @@ const Template = (props) => {
           </Menu.Item>
           <Menu.Item key="3" icon={<UserOutlined />}>
             <Link to={`${import.meta.env.VITE_REACT_APP_PATH}painel/backoffice`}>Backoffice</Link>
-          </Menu.Item>         
+          </Menu.Item>
         </Menu>
       </Sider>
       <Layout>

@@ -31,7 +31,7 @@ function WithAuthentication({ children }) {
 // --bg-100:#fafaf9; branco
 // --bg-200:#f5f5f4; branco light
 // --bg-300:#E0E2E5; cinza claro
-  
+
 
 const theme = {
   token: {
@@ -43,6 +43,7 @@ const theme = {
     colorAccent: "#FCEEF5",
     colorTextBase: "#292524",
     colorBgMenus: "#E0E2E5",
+    colorTicket: "#fef1c7",	
     borderRadius: '8px'
   },
 };
@@ -77,7 +78,7 @@ const App = () => {
                 }
               />
             </Routes>
-          </Content>          
+          </Content>
         </Layout>
       </MyContextProvider>
     </ConfigProvider>

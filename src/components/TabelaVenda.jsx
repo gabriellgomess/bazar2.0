@@ -2,7 +2,7 @@ import React from 'react';
 import { Table, Button, Popconfirm } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
-const TabelaLocatarios = ({ locatarios, handleEdit, handleDelete, theme }) => {
+const TabelaVenda = ({ locatarios, handleEdit, handleDelete, theme }) => {
     const text = 'Tem certeza que deseja excluir este locatário?';
     const description = 'Esta ação não poderá ser desfeita.';
     const confirm = (locatario) => {
@@ -11,12 +11,12 @@ const TabelaLocatarios = ({ locatarios, handleEdit, handleDelete, theme }) => {
     }
     const columns = [
         {
-            title: 'ID',
+            title: 'Código',
             dataIndex: 'id',
             width: '5%',
         },
         {
-            title: 'Nome',
+            title: 'Descriçao',
             dataIndex: 'nome',
             width: '15%',
         },
@@ -94,4 +94,4 @@ const TabelaLocatarios = ({ locatarios, handleEdit, handleDelete, theme }) => {
     );
 };
 
-export default TabelaLocatarios;
+export default TabelaVenda;

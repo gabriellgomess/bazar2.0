@@ -32,7 +32,7 @@ function Login() {
       setState({
         ...initialState,
       });
-      localStorage.setItem("loginToken", data.token);
+      sessionStorage.setItem("loginToken", data.token);
       await isLoggedIn();
     } else {
       setState({

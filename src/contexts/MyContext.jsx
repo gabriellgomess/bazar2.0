@@ -23,7 +23,7 @@ const MyContextProvider = ({ children }) => {
   };
 
   const logoutUser = () => {
-    localStorage.removeItem("loginToken");
+    sessionStorage.removeItem("loginToken");
     setIsAuth(false);
   };
 
@@ -45,7 +45,7 @@ const MyContextProvider = ({ children }) => {
   };
 
   const isLoggedIn = async () => {
-    const loginToken = localStorage.getItem("loginToken");
+    const loginToken = sessionStorage.getItem("loginToken");
     if (loginToken) {
       Axios.defaults.headers.common["Authorization"] = "bearer " + loginToken;
       const { data } = await Axios.get("user-info.php");
