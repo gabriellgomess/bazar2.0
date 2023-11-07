@@ -3,18 +3,30 @@ import { Flex, Typography, Input, Select, AutoComplete, Button, Table, notificat
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faPercent, faDollarSign } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
+import { useForm, Controller } from 'react-hook-form';
+
 
 const Venda = (props) => {
     const { theme } = props;
     const [funcionarios, setFuncionarios] = useState([]);
-    const [showFuncionario, setShowFuncionario] = useState(false);
-    const [code, setCode] = useState('');
-    const [items, setItems] = useState([]); // Estado para armazenar a lista de itens
-    const [quantity, setQuantity] = useState(1); // Estado para armazenar a quantidade de itens
-    const [total, setTotal] = useState(0); // Estado para armazenar o total da venda
+    const [showFuncionario, setShowFuncionario] = useState(false); const [code, setCode] = useState('');
+
     const [errorMessage, setErrorMessage] = useState('');
     const [api, contextHolder] = notification.useNotification();
     const [showCheckbox, setShowCheckbox] = useState(false);
+    const [selectedParcelOption, setSelectedParcelOption] = useState('1');
+    const [parcelOptions, setParcelOptions] = useState([
+        { value: '1', label: '1x' },
+    ]);
+    const { Text } = Typography;
+    const { control, handleSubmit, setValue } = useForm();
+
+    const [items, setItems] = useState([]); // Estado para armazenar a lista de itens
+    const [quantity, setQuantity] = useState(1); // Estado para armazenar a quantidade de itens
+    const [total, setTotal] = useState(0); // Estado para armazenar o total da venda
+    const [billingType, setBillingType] = useState(''); // Estado para armazenar a forma de pagamento
+    const [nomeFuncionario, setNomeFuncionario] = useState('')
+
 
     const openNotificationWithIcon = (type) => {
         api[type]({
@@ -49,6 +61,10 @@ const Venda = (props) => {
                     // Limpe o código e a quantidade
                     setCode('');
                     setQuantity(1);
+
+                    // Verifique o valor da compra e atualize as opções de parcelamento
+                    const valor_compra = total + item.valor_sugerido * quantity;
+                    updateParcelOptions(valor_compra);
                 } else {
                     console.error('Erro: Não foi possível encontrar a peça', res);
                     openNotificationWithIcon('warning')
@@ -57,6 +73,21 @@ const Venda = (props) => {
             .catch((err) => {
                 console.error('Erro na requisição:', err);
             });
+    };
+
+    const updateParcelOptions = (valor_compra) => {
+        if (valor_compra > 0) {
+            if (valor_compra < 150) {
+                setParcelOptions([{ value: '1', label: '1x' }]);
+                setSelectedParcelOption('1')
+            } else {
+                setParcelOptions([
+                    { value: '1', label: '1x' },
+                    { value: '2', label: '2x' },
+                    { value: '3', label: '3x' },
+                ]);
+            }
+        }
     };
 
     const options = funcionarios.map((funcionario) => {
@@ -73,6 +104,8 @@ const Venda = (props) => {
             setShowFuncionario(false);
             setShowCheckbox(true);
         }
+        setBillingType(value)
+
     };
 
     const handleCodeChange = (event) => {
@@ -121,7 +154,15 @@ const Venda = (props) => {
     const handleRemoveItem = (item) => {
         const updatedItems = items.filter((i) => i.id !== item.id);
         setItems(updatedItems);
+
+        // Recalcule o valor total após a remoção
+        const newTotal = updatedItems.reduce((acc, item) => acc + item.valor_sugerido * item.quantidade, 0);
+        setTotal(newTotal);
+
+        // Verifique o valor da compra e atualize as opções de parcelamento
+        updateParcelOptions(newTotal);
     };
+
 
     // Função para lidar com a tecla "Enter" pressionada
     const handleKeyPress = (event) => {
@@ -148,43 +189,32 @@ const Venda = (props) => {
         }
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const funcionario = document.querySelector('#nome_funcionario').value;
-        const total = document.querySelector('#total').value;
-        const total_desconto = document.querySelector('#total_desconto').value;
-        const items = document.querySelector('.ant-table-tbody').textContent;
-        const billingType = document.querySelector('.ant-select-selection-item').textContent;
-        const data = {
-            funcionario,
-            total,
-            total_desconto,
-            items,
-            billingType,
-        };
+    const handleSetName = (e) => {
 
-        console.log(data);
+        setNomeFuncionario(e);
 
-        // axios.post('https://amigosdacasa.org.br/bazar-amigosdacasa/api/venda.php', data)
-        //     .then((res) => {
-        //         if (res.data.status === 'success') {
-        //             console.log(res.data);
-        //             window.location.reload();
-        //         } else {
-        //             console.error('Erro: Não foi possível finalizar a venda', res);
-        //         }
-        //     })
-        //     .catch((err) => {
-        //         console.error
-        //     }
-        //     );
+        console.log("Nome do funcionário EVENT: ", nomeFuncionario)
+    }
+
+    const handleViewData = () => {
+        console.log("Itens: ", items)
+        console.log("Forma de pagamento: ", billingType)
+        console.log("É funcionário: ", showFuncionario)
+        console.log("Nome do funcionário: ", nomeFuncionario)
+        console.log("Quantidade de parcelas: ", selectedParcelOption)
+        if (showFuncionario) {
+            console.log("Total: ", total * 0.9)
+            console.log("Valor parcela: ", total * 0.9 / selectedParcelOption)
+        } else {
+            console.log("Total: ", total)
+            console.log("Valor parcela: ", total / selectedParcelOption)
+        }
+
     }
 
     return (
         <div>
             <form>
-
-
                 <style>
                     {`
                 
@@ -195,8 +225,7 @@ const Venda = (props) => {
                 }
                 .customer-input>div>span{
                     font-size: 2rem !important;
-                }
-                `
+                }               `
 
                     }
                 </style>
@@ -222,7 +251,7 @@ const Venda = (props) => {
                     <div style={{ width: '48%', paddingTop: '60px' }}>
                         <div style={{ display: 'flex', gap: '10px' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                <Select                                
+                                <Select
                                     placeholder="Forma de Pagamento"
                                     style={{
                                         minWidth: 200,
@@ -271,11 +300,11 @@ const Venda = (props) => {
                                     filterOption={(inputValue, option) =>
                                         option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
                                     }
-
+                                    onChange={(e) => handleSetName(e)}
                                 />
                             }
                         </div>
-                        <div style={{display: 'flex', gap: '20px'}}>
+                        <div style={{ display: 'flex', gap: '20px' }}>
                             <div style={{ width: '50%' }}>
                                 <Typography.Title level={5}>Valor <FontAwesomeIcon icon={faDollarSign} /></Typography.Title>
                                 <input type="hidden" id="total" value={total} />
@@ -288,26 +317,20 @@ const Venda = (props) => {
                             <div style={{ width: '20%' }}>
                                 <Typography.Title level={5}>Parcelas</Typography.Title>
                                 <Select
-                                className='customer-input'
+                                    id='quantidade_parcelas'
+                                    className='customer-input'
                                     placeholder="Parcelas"
-                                    style={{
-                                        minWidth: 200,
-                                    }}
-                                    options={[
-                                        {
-                                            value: '1',
-                                            label: '1x',
-                                        },
-                                        {
-                                            value: '2',
-                                            label: '2x',
-                                        },
-                                        {
-                                            value: '3',
-                                            label: '3x',
-                                        }
-                                    ]}
+                                    style={{ minWidth: 200 }}
+                                    options={parcelOptions}
+                                    value={selectedParcelOption}
+                                    onChange={(value) => setSelectedParcelOption(value)}
                                 />
+                                <Text italic>
+                                    {total > 0 ?
+                                        selectedParcelOption == '1' ? `1x ${total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}` : selectedParcelOption == '2' ? `2x ${(total / 2).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}` : `3x ${(total / 3).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
+                                        : ''}
+                                </Text>
+
                             </div>
                         </div>
 
@@ -322,10 +345,11 @@ const Venda = (props) => {
                                 })} />
                             </div>
                         }
+
                     </div>
 
                 </div>
-                <Button type="primary" onClick={handleSubmit} style={{ marginTop: '30px' }}>
+                <Button type="primary" onClick={() => handleViewData()} style={{ marginTop: '30px' }}>
                     Finalizar Venda
                 </Button>
 
