@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Flex, Typography, Input, Select, AutoComplete, Button, Table, notification, Checkbox } from 'antd'; // Importe o componente Button e Table
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faPercent, faDollarSign } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, set } from 'react-hook-form';
+import { MyContext } from '../../contexts/MyContext';
+
 
 
 const Venda = (props) => {
+    const { rootState } = useContext(MyContext);
+    const { theUser } = rootState;
     const { theme } = props;
     const [funcionarios, setFuncionarios] = useState([]);
     const [showFuncionario, setShowFuncionario] = useState(false); const [code, setCode] = useState('');
@@ -26,6 +30,8 @@ const Venda = (props) => {
     const [total, setTotal] = useState(0); // Estado para armazenar o total da venda
     const [billingType, setBillingType] = useState(''); // Estado para armazenar a forma de pagamento
     const [nomeFuncionario, setNomeFuncionario] = useState('')
+    const [limiteTotal, setLimiteTotal] = useState(0)
+    const [limiteDisponivel, setLimiteDisponivel] = useState(0)
 
 
     const openNotificationWithIcon = (type) => {
@@ -103,6 +109,8 @@ const Venda = (props) => {
         } else {
             setShowFuncionario(false);
             setShowCheckbox(true);
+            setLimiteDisponivel(0);
+            setLimiteTotal(0);
         }
         setBillingType(value)
 
@@ -177,8 +185,14 @@ const Venda = (props) => {
         items.forEach((item) => {
             total += item.valor_sugerido * item.quantidade;
         });
-        setTotal(total);
-    }, [items]);
+        if (billingType == "Acolhido") {
+            total = 0;
+            setTotal(total);
+        } else {
+            setTotal(total);
+        }
+
+    }, [items, billingType]);
 
     const onChange = (e) => {
         if (e.target.checked) {
@@ -186,29 +200,87 @@ const Venda = (props) => {
         }
         else {
             setShowFuncionario(false);
+            setLimiteDisponivel(0);
+            setLimiteTotal(0);
         }
     };
 
-    const handleSetName = (e) => {
+    const handleSetName = (value) => {
 
-        setNomeFuncionario(e);
+        setNomeFuncionario(value);
 
-        console.log("Nome do funcionário EVENT: ", nomeFuncionario)
+        console.log("Nome do funcionário EVENT: ", value)
+        checkLimit(value);
     }
 
-    const handleViewData = () => {
-        console.log("Itens: ", items)
-        console.log("Forma de pagamento: ", billingType)
-        console.log("É funcionário: ", showFuncionario)
-        console.log("Nome do funcionário: ", nomeFuncionario)
-        console.log("Quantidade de parcelas: ", selectedParcelOption)
-        if (showFuncionario) {
-            console.log("Total: ", total * 0.9)
-            console.log("Valor parcela: ", total * 0.9 / selectedParcelOption)
-        } else {
-            console.log("Total: ", total)
-            console.log("Valor parcela: ", total / selectedParcelOption)
+    const checkLimit = (nome) => {
+        console.log("Inicia busca do limite")
+        console.log("Nome func_ ", nome)
+        if (!nome) {
+            console.log("O nome do funcionário é obrigatório.");
+            return;
         }
+
+        axios.post('https://amigosdacasa.org.br/bazar-amigosdacasa/api/consulta_limites.php', { nome_funcionario: nome })
+            .then((res) => {
+                console.log("Retorno consulta limite: ", res)
+                if (res.data) {
+                    console.log("Limite Total: ", res.data.limite_total);
+                    console.log("Limite Disponível: ", res.data.limite_disponivel);
+                    setLimiteTotal(res.data.limite_total);
+                    setLimiteDisponivel(res.data.limite_disponivel);
+                } else {
+                    console.log("Resposta recebida, mas sem dados de limite.");
+                }
+            })
+            .catch((err) => {
+                console.log("Erro: ", err);
+            });
+    }
+
+
+    const handleViewData = () => {
+        // console.log("Itens: ", items)
+        // console.log("Forma de pagamento: ", billingType)
+        // console.log("É funcionário: ", showFuncionario)
+        // console.log("Nome do funcionário: ", nomeFuncionario)
+        // console.log("Quantidade de parcelas: ", selectedParcelOption)
+        // if (showFuncionario) {
+        //     console.log("Total: ", total * 0.9)
+        //     console.log("Valor parcela: ", total * 0.9 / selectedParcelOption)
+        // } else {
+        //     console.log("Total: ", total)
+        //     console.log("Valor parcela: ", total / selectedParcelOption)
+        // }
+
+        const data = {
+            nome_funcionario: nomeFuncionario,
+            data_compra: new Date().toISOString().slice(0, 10),
+            valor_compra: showFuncionario ? total * 0.9 : total,
+            total_pecas: items.length,
+            quantidade_parcelas: selectedParcelOption,
+            valor_parcela: showFuncionario ? total * 0.9 / selectedParcelOption : total / selectedParcelOption,
+            forma_pagamento: billingType,
+            usuario: theUser.name,
+            log_transacao: items.map((item) => {
+                return {
+                    codigo_peca: item.codigo,
+                    quantidade: item.quantidade,
+                    valor: item.valor_sugerido,
+                };
+            }),
+            check_func: showFuncionario ? 1 : 0,
+        }
+
+        axios.post('https://amigosdacasa.org.br/bazar-amigosdacasa/api/finaliza_venda.php', data)
+            .then((res) => {
+                console.log("Resposta: ", res)
+            })
+            .catch((err) => {
+                console.log("Erro: ", err)
+            })
+
+
 
     }
 
@@ -230,9 +302,9 @@ const Venda = (props) => {
                     }
                 </style>
                 {contextHolder}
-                <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
+                <div style={{ width: '100%', display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '30px' }}>
 
-                    <div style={{ width: '48%', display: 'flex', flexDirection: 'column', gap: '30px' }}>
+                    <div style={{ width: '48%', minWidth: '300px', display: 'flex', flexDirection: 'column', gap: '30px', flexGrow: '1' }}>
                         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', width: '100%' }}>
                             <div style={{ width: '70%' }}>
                                 <Typography.Title level={5}>Código da peça</Typography.Title>
@@ -248,62 +320,80 @@ const Venda = (props) => {
                         </div>
                         <Table columns={columns} dataSource={items} size="small" pagination={{ pageSize: 10 }} />
                     </div>
-                    <div style={{ width: '48%', paddingTop: '60px' }}>
-                        <div style={{ display: 'flex', gap: '10px' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                <Select
-                                    placeholder="Forma de Pagamento"
-                                    style={{
-                                        minWidth: 200,
-                                    }}
-                                    onChange={handleChangeBillingType}
-                                    options={[
-                                        {
-                                            value: 'Credito',
-                                            label: 'Crédito',
-                                        },
-                                        {
-                                            value: 'Debito',
-                                            label: 'Débito',
-                                        },
-                                        {
-                                            value: 'Desconto em Folha',
-                                            label: 'Desconto em Folha',
-                                        },
-                                        {
-                                            value: 'Dinheiro',
-                                            label: 'Dinheiro',
-                                        },
-                                        {
-                                            value: 'Pix',
-                                            label: 'PIX',
-                                        },
-                                        {
-                                            value: 'Acolhido',
-                                            label: 'Acolhido',
-                                        },
-                                    ]}
-                                />
-                                {showCheckbox &&
-                                    <Checkbox onChange={onChange}>Funcionário</Checkbox>
+                    <div style={{ width: '48%', minWidth: '300px', paddingTop: '60px', flexGrow: '1' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                    <Select
+                                        placeholder="Forma de Pagamento"
+                                        style={{
+                                            minWidth: 200,
+                                        }}
+                                        onChange={handleChangeBillingType}
+                                        options={[
+                                            {
+                                                value: 'Credito',
+                                                label: 'Crédito',
+                                            },
+                                            {
+                                                value: 'Debito',
+                                                label: 'Débito',
+                                            },
+                                            {
+                                                value: 'Desconto em Folha',
+                                                label: 'Desconto em Folha',
+                                            },
+                                            {
+                                                value: 'Dinheiro',
+                                                label: 'Dinheiro',
+                                            },
+                                            {
+                                                value: 'Pix',
+                                                label: 'PIX',
+                                            },
+                                            {
+                                                value: 'Acolhido',
+                                                label: 'Acolhido',
+                                            },
+                                        ]}
+                                    />
+                                    {showCheckbox &&
+                                        <Checkbox onChange={onChange}>Funcionário</Checkbox>
+                                    }
+                                </div>
+
+                                {showFuncionario &&
+                                    <AutoComplete
+                                        style={{
+                                            width: 200,
+                                        }}
+                                        options={options}
+                                        id='nome_funcionario'
+                                        placeholder="Funcionário"
+                                        filterOption={(inputValue, option) =>
+                                            option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+                                        }
+                                        onSelect={(value) => handleSetName(value)}
+                                    />
                                 }
                             </div>
+                            <div style={{ display: 'flex', gap: '10px', height: '70px' }}>
+                                {showFuncionario &&
+                                <>
+                                    <div style={{ width: '30%' }}>
+                                        <Typography.Title level={5}>Limite disponível</Typography.Title>
+                                        <Input value={limiteDisponivel} style={{ background: 'lightgrey' }} readOnly />
+                                    </div>
+                                    <div style={{ width: '30%' }}>
+                                        <Typography.Title level={5}>Limite total</Typography.Title>
+                                        <Input value={limiteTotal} style={{ background: 'lightgrey' }} readOnly />
+                                    </div>
+                                </>
+                                }
 
-                            {showFuncionario &&
-                                <AutoComplete
-                                    style={{
-                                        width: 200,
-                                    }}
-                                    options={options}
-                                    id='nome_funcionario'
-                                    placeholder="Funcionário"
-                                    filterOption={(inputValue, option) =>
-                                        option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
-                                    }
-                                    onChange={(e) => handleSetName(e)}
-                                />
-                            }
+                            </div>
                         </div>
+
                         <div style={{ display: 'flex', gap: '20px' }}>
                             <div style={{ width: '50%' }}>
                                 <Typography.Title level={5}>Valor <FontAwesomeIcon icon={faDollarSign} /></Typography.Title>

@@ -81,7 +81,7 @@ const Dashboard = () => {
         <div>
             <h1>Dashboard</h1>
 
-            <div style={{ display: 'flex', gap: '50px' }}>
+            <div style={{ display: 'flex', gap: '50px', width: '100%', flexWrap: 'wrap' }}>
                 <Chart
                     options={options}
                     series={series}

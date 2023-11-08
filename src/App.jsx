@@ -43,7 +43,7 @@ const theme = {
     colorAccent: "#FCEEF5",
     colorTextBase: "#292524",
     colorBgMenus: "#E0E2E5",
-    colorTicket: "#fef1c7",	
+    colorTicket: "#fef1c7",
     borderRadius: '8px'
   },
 };
@@ -63,25 +63,28 @@ const theme = {
 
 const App = () => {
   return (
-    <ConfigProvider theme={theme} locale={ptBR}>
-      <MyContextProvider>
-        <Layout style={{ minHeight: '100vh' }}>
-          <Content style={{ display: "flex", justifyContent: "center" }}>
-            <Routes>
-              <Route path={`${import.meta.env.VITE_REACT_APP_PATH}`} element={<Home />} />
-              <Route
-                path={`${import.meta.env.VITE_REACT_APP_PATH}painel/*`}
-                element={
-                  <WithAuthentication>
-                    <Template theme={theme} />
-                  </WithAuthentication>
-                }
-              />
-            </Routes>
-          </Content>
-        </Layout>
-      </MyContextProvider>
-    </ConfigProvider>
+    <div style={{height: '100vh', width: '100vw'}}>
+      <ConfigProvider theme={theme} locale={ptBR}>
+        <MyContextProvider>
+          <Layout style={{ minHeight: '100vh' }}>
+            <Content style={{ display: "flex", justifyContent: "center" }}>
+              <Routes>
+                <Route path={`${import.meta.env.VITE_REACT_APP_PATH}`} element={<Home />} />
+                <Route
+                  path={`${import.meta.env.VITE_REACT_APP_PATH}painel/*`}
+                  element={
+                    <WithAuthentication>
+                      <Template theme={theme} />
+                    </WithAuthentication>
+                  }
+                />
+              </Routes>
+            </Content>
+          </Layout>
+        </MyContextProvider>
+      </ConfigProvider>
+    </div>
+
   );
 };
 

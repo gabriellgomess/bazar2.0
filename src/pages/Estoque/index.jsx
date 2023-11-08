@@ -18,6 +18,14 @@ const Estoque = (props) => {
     const [update, setUpdate] = useState(false);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [editingPiece, setEditingPiece] = useState(null);
+    const [formValues, setFormValues] = useState({
+        descricao: '',
+        tag: '',
+        tipo: '',
+        valor_sugerido: '',
+        desc_func_10: '',
+        codigo: ''
+    });
 
 
 
@@ -28,8 +36,24 @@ const Estoque = (props) => {
     const [valor_sugerido, setValor_sugerido] = useState('');
     const [valor_desconto, setValor_desconto] = useState('0');
 
+    useEffect(() => {
+        if (editingPiece) {
+            setFormValues({
+                descricao: editingPiece.descricao,
+                tag: editingPiece.tag,
+                tipo: editingPiece.tipo,
+                valor_sugerido: editingPiece.valor_sugerido,
+                desc_func_10: editingPiece.desc_func_10,// Presumi que você tem um campo assim
+                codigo: editingPiece.codigo,                
+            });
+        }
+    }, [editingPiece]);
+
+    const handleValueChange = (changedValues) => {
+        setFormValues({ ...formValues, ...changedValues });
+    };
+
     const showEditModal = (record) => {
-        console.log(record);
         setIsEditModalVisible(true);
         setEditingPiece(record);
     };
@@ -38,7 +62,6 @@ const Estoque = (props) => {
         setIsModalVisible(true);
         axios.post('https://amigosdacasa.org.br/bazar-amigosdacasa/api/buscar_codigo.php')
             .then((res) => {
-                console.log(res.data);
                 setNewCode(res.data);
             })
             .catch((err) => {
@@ -54,15 +77,12 @@ const Estoque = (props) => {
             tag: tag,
             tipo: tipo,
             valor_sugerido: valor_sugerido,
-            valor_desconto: valor_sugerido*0.9,
+            valor_desconto: valor_sugerido * 0.9,
         }
-
-        console.log(dados);
 
         // Enviar dados do formulário para o banco de dados
         axios.post('https://amigosdacasa.org.br/bazar-amigosdacasa/api/add_estoque.php', dados)
             .then((res) => {
-                console.log(res.data);
                 setIsModalVisible(false);
                 setNewCode('');
                 setUpdate(!update);
@@ -92,7 +112,6 @@ const Estoque = (props) => {
     useEffect(() => {
         axios.post('https://amigosdacasa.org.br/bazar-amigosdacasa/api/get_all_peca_details.php')
             .then((res) => {
-                console.log(res.data);
                 setData(res.data.pecas);
             })
             .catch((err) => {
@@ -103,6 +122,16 @@ const Estoque = (props) => {
     const handleEditOk = (record) => {
         // Implement your edit logic here using the record data
         console.log("Edit clicked for record:", record);
+        axios.post('https://amigosdacasa.org.br/bazar-amigosdacasa/api/edit_estoque.php', record)
+            .then((res) => {
+                setIsEditModalVisible(false);
+                setUpdate(!update);
+                console.log(res.data);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+
     };
 
     const handleEditCancel = () => {
@@ -112,6 +141,15 @@ const Estoque = (props) => {
     const handleDelete = (record) => {
         // Implement your delete logic here using the record data
         console.log("Delete clicked for record:", record);
+        axios.post('https://amigosdacasa.org.br/bazar-amigosdacasa/api/delete_estoque.php', record)
+            .then((res) => {
+                setUpdate(!update);
+                console.log(res.data);
+            })
+            .catch((err) => {
+                console.log(err);            
+            });
+
     };
 
 
@@ -310,38 +348,67 @@ const Estoque = (props) => {
                             <Input onChange={(e) => setValor_sugerido(e.target.value)} />
                         </Form.Item>
                         <Form.Item style={{ flexGrow: '1' }} label="Valor com desconto">
-                            <Input readOnly value={valor_sugerido*0.9} />
+                            <Input style={{ background: 'lightgrey' }} readOnly value={valor_sugerido * 0.9} />
                         </Form.Item>
                     </div>
                 </Form>
             </Modal>
             {/* *************************edição********************** */}
-            <Modal title="Editar peça" visible={isEditModalVisible} onOk={handleEditOk} onCancel={handleEditCancel}>
+            <Modal
+                title="Editar peça"
+                visible={isEditModalVisible}
+                onOk={() => handleEditOk(formValues)}
+                onCancel={handleEditCancel}
+            >
                 <Form layout="vertical">
+                    {/* Código - Apenas leitura */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                         <Form.Item label="Código" style={{ width: '150px' }}>
                             <Input value={editingPiece ? editingPiece.codigo : ''} readOnly />
                         </Form.Item>
                     </div>
+
+                    {/* Descrição */}
                     <Form.Item label="Descrição">
-                        <Input value={editingPiece ? editingPiece.descricao : ''} onChange={(e) => setDescricao(e.target.value)} />
+                        <Input
+                            value={formValues.descricao}
+                            onChange={(e) => handleValueChange({ descricao: e.target.value })}
+                        />
                     </Form.Item>
+
+                    {/* Tag */}
                     <Form.Item label="Tag">
-                        <Input value={editingPiece ? editingPiece.tag : ''} onChange={(e) => setTag(e.target.value)} />
+                        <Input
+                            value={formValues.tag}
+                            onChange={(e) => handleValueChange({ tag: e.target.value })}
+                        />
                     </Form.Item>
+
+                    {/* Tipo */}
                     <Form.Item label="Tipo">
-                        <Select value={editingPiece ? editingPiece.tipo : ''} onChange={(e) => setTipo(e)}>
+                        <Select
+                            value={formValues.tipo}
+                            onChange={(value) => handleValueChange({ tipo: value })}
+                        >
                             <Option value="masculino">Masculino</Option>
                             <Option value="feminino">Feminino</Option>
                             <Option value="unissex">Unissex</Option>
                         </Select>
                     </Form.Item>
+
+                    {/* Valor Sugerido e Valor com Desconto */}
                     <div style={{ display: 'flex', gap: '20px' }}>
-                        <Form.Item style={{ flexGrow: '1' }} label="Valor sugerido">
-                            <Input value={editingPiece ? editingPiece.valor_sugerido : ''} onChange={(e) => setValor_sugerido(e.target.value)} />
+                        <Form.Item label="Valor sugerido" style={{ flexGrow: '1' }}>
+                            <Input
+                                value={formValues.valor_sugerido}
+                                onChange={(e) => handleValueChange({ valor_sugerido: e.target.value })}
+                            />
                         </Form.Item>
-                        <Form.Item style={{ flexGrow: '1' }} label="Valor com desconto">
-                            <Input value={editingPiece ? editingPiece.desc_func_10 : ''} onChange={(e) => setValor_desconto(e.target.value)} />
+                        <Form.Item label="Valor com desconto" style={{ flexGrow: '1' }}>
+                            <Input
+                                style={{ background: 'lightgrey' }}
+                                value={(formValues.valor_sugerido * 0.9).toFixed(2)}// Se este campo é calculado automaticamente, então deve ser apenas para leitura
+                            />
                         </Form.Item>
                     </div>
                 </Form>
