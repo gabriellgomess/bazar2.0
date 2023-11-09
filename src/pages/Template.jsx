@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
-
+import React, { useState, useContext  } from 'react';
+import { MyContext } from '../contexts/MyContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShirt, faChartSimple, faGears, faChevronRight, faChevronLeft, faUserGear, faBoxesStacked } from '@fortawesome/free-solid-svg-icons';
+import { faShirt, faChartSimple, faGears, faChevronRight, faChevronLeft, faUserGear, faBoxesStacked, faCartShopping } from '@fortawesome/free-solid-svg-icons';
 
 import { Layout, Menu, Button, Typography } from 'antd';
 const { Header, Sider, Content } = Layout;
 
-import { MyContext } from '../contexts/MyContext';
-import { useContext } from 'react';
 
 import { Link, Routes, Route } from 'react-router-dom';
 
@@ -19,11 +17,13 @@ import Estoque from './Estoque/';
 import Backoffice from './Backoffice';
 
 import Logo from '../assets/logo.png';
+import Transacoes from './Transacoes';
 
 
 
 const Template = (props) => {
-  const { logoutUser } = useContext(MyContext);
+  const { logoutUser, rootState } = useContext(MyContext);
+  const { theUser } = rootState;
   const [collapsed, setCollapsed] = useState(false);
   const { Title } = Typography;
   const { theme } = props;
@@ -36,7 +36,10 @@ const Template = (props) => {
           theme="dark"
           mode="inline"
           defaultSelectedKeys={['1']}
-        >          
+        >   
+        {!collapsed &&
+          <Title level={5} style={{ color: theme.token.colorTextBase, textAlign: 'center', marginTop: '24px', marginBottom: '24px' }}>Olá, {theUser.name} </Title>  
+        }     
 
           <Menu.Item key="1" icon={<FontAwesomeIcon icon={faShirt} />}>
             <Link to={`${import.meta.env.VITE_REACT_APP_PATH}painel/venda`}>Venda</Link>
@@ -50,7 +53,10 @@ const Template = (props) => {
           <Menu.Item key="4" icon={<FontAwesomeIcon icon={faBoxesStacked} />}>
             <Link to={`${import.meta.env.VITE_REACT_APP_PATH}painel/estoque`}>Estoque</Link>
           </Menu.Item>
-          <Menu.Item key="5" icon={<FontAwesomeIcon icon={faUserGear} />}>
+          <Menu.Item key="5" icon={<FontAwesomeIcon icon={faCartShopping} />}>
+            <Link to={`${import.meta.env.VITE_REACT_APP_PATH}painel/transacoes`}>Transações</Link>
+          </Menu.Item>
+          <Menu.Item key="6" icon={<FontAwesomeIcon icon={faUserGear} />}>
             <Link to={`${import.meta.env.VITE_REACT_APP_PATH}painel/backoffice`}>Perfil</Link>
           </Menu.Item>
         </Menu>
@@ -92,6 +98,7 @@ const Template = (props) => {
             <Route path={`${import.meta.env.VITE_REACT_APP_PATH}venda`} element={<Venda theme={theme} />} />
             <Route path={`${import.meta.env.VITE_REACT_APP_PATH}dashboard`} element={<Dashboard />} />
             <Route path={`${import.meta.env.VITE_REACT_APP_PATH}estoque`} element={<Estoque theme={theme} />} />
+            <Route path={`${import.meta.env.VITE_REACT_APP_PATH}transacoes`} element={<Transacoes theme={theme} />} />
             <Route path={`${import.meta.env.VITE_REACT_APP_PATH}backoffice`} element={<Backoffice theme={theme} />} />
           </Routes>
         </Content>

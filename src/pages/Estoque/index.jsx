@@ -3,7 +3,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import Highlighter from 'react-highlight-words';
 import { Button, Input, Space, Table, Modal, Form, Select } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faRotateRight, faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faRotateRight, faTrash, faPenToSquare, faFilePdf } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { set } from 'react-hook-form';
 
@@ -44,7 +44,7 @@ const Estoque = (props) => {
                 tipo: editingPiece.tipo,
                 valor_sugerido: editingPiece.valor_sugerido,
                 desc_func_10: editingPiece.desc_func_10,// Presumi que você tem um campo assim
-                codigo: editingPiece.codigo,                
+                codigo: editingPiece.codigo,
             });
         }
     }, [editingPiece]);
@@ -147,7 +147,7 @@ const Estoque = (props) => {
                 console.log(res.data);
             })
             .catch((err) => {
-                console.log(err);            
+                console.log(err);
             });
 
     };
@@ -253,7 +253,7 @@ const Estoque = (props) => {
             title: 'Código',
             dataIndex: 'codigo',
             key: 'codigo',
-            width: '3%',
+            width: '15%',
             ...getColumnSearchProps('codigo'),
         },
         {
@@ -267,28 +267,28 @@ const Estoque = (props) => {
             title: 'TAG',
             dataIndex: 'tag',
             key: 'tag',
-            width: '30%',
+            width: '20%',
             ...getColumnSearchProps('tag'),
         },
         {
             title: 'Tipo',
             dataIndex: 'tipo',
             key: 'tipo',
-            width: '30%',
+            width: '20%',
             ...getColumnSearchProps('tipo'),
         },
         {
             title: 'Valor',
             dataIndex: 'valor_sugerido',
             key: 'valor_sugerido',
-            width: '30%',
+            width: '20%',
             ...getColumnSearchProps('valor_sugerido'),
         },
         {
             title: 'Actions',
             dataIndex: 'actions',
             key: 'actions',
-            width: '10%',
+            width: '20%',
             render: (text, record) => (
                 <div style={{ display: 'flex', gap: '10px' }}>
                     <Button style={{ color: theme.token.colorPrimary, background: theme.token.colorInfo, border: 'transparent' }} icon={<FontAwesomeIcon icon={faPenToSquare} />} onClick={() => showEditModal(record)} />
@@ -310,15 +310,20 @@ const Estoque = (props) => {
     //         });
     // }
 
+ 
 
     return (
-        <div>
-            <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
+        <div >
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+                {/* link download pdf */}
+                <Button ghost style={{ borderColor: theme.token.colorPDF, color: theme.token.colorPDF }} icon={<FontAwesomeIcon icon={faFilePdf}/>}  href='https://amigosdacasa.org.br/bazar-amigosdacasa/api/pdf_estoque.php' target='_blank' >
+                    Imprimir estoque
+                </Button>
                 <Button type="primary" icon={<FontAwesomeIcon icon={faPlus} />} onClick={showModal}>
                     Adicionar peça
                 </Button>
             </div>
-            <Table columns={columns} dataSource={data} />
+            <Table scroll={{y: 440 }} columns={columns} dataSource={data} />
 
             <Modal title="Adicionar peça" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
                 <Form layout="vertical">

@@ -44,6 +44,7 @@ const theme = {
     colorTextBase: "#292524",
     colorBgMenus: "#E0E2E5",
     colorTicket: "#fef1c7",
+    colorPDF: "#a31616",
     borderRadius: '8px'
   },
 };

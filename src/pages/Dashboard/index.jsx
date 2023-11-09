@@ -86,14 +86,14 @@ const Dashboard = () => {
                     options={options}
                     series={series}
                     type="area"
-                    width="500"
+                    width="400"
                     height="300"
                 />
                 <Chart
                     options={optionsDonut}
                     series={seriesDonut}
                     type="donut"
-                    width="500"
+                    width="400"
                     height="300"
                 />
             </div>

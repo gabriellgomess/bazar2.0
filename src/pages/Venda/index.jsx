@@ -20,22 +20,21 @@ const Venda = ({ theme }) => {
     const [desabilitaVenda, setDesabilitaVenda] = useState(false);
     const [showCheckbox, setShowCheckbox] = useState(true);
     const [quantity, setQuantity] = useState(1);
-    
+
     // Estados para UI
     const [code, setCode] = useState('');
     const [showFuncionario, setShowFuncionario] = useState(false);
     const [parcelOptions, setParcelOptions] = useState([{ value: '1', label: '1x' }]);
     const [selectedParcelOption, setSelectedParcelOption] = useState('1');
-    
+
     // API de notificação
     const [api, contextHolder] = notification.useNotification();
 
-    const openNotificationWithIcon = (type) => {
+    const openNotificationWithIcon = (type, message, description) => {
         api[type]({
-            message: 'Não foi possível encontrar a peça',
-            description:
-                'Verifique se o código digitado está correto, em caso de dúvida, consulte a aba Estoque.',
-            placement: 'bottom',
+            message: message,
+            description: description,
+            placement: 'bottomRight',
         });
     };
 
@@ -60,14 +59,14 @@ const Venda = ({ theme }) => {
                     setItems([...items, item]);
                     setCode('');
                     setQuantity(1);
-                    
+
                     const valor_compra = total + item.valor_sugerido * quantity;
                     updateParcelOptions(valor_compra);
 
-                    
+
                 } else {
                     console.error('Erro: Não foi possível encontrar a peça', res);
-                    openNotificationWithIcon('warning')
+                    openNotificationWithIcon('error', 'Erro ao buscar peça', 'Não foi possível encontrar a peça. Por favor, verifique o código e tente novamente.')
                 }
             })
             .catch((err) => {
@@ -88,7 +87,7 @@ const Venda = ({ theme }) => {
                 ]);
             }
         }
-        
+
     };
 
     const options = funcionarios.map((funcionario) => {
@@ -101,7 +100,7 @@ const Venda = ({ theme }) => {
         if (value === 'Desconto em Folha') {
             setShowFuncionario(true);
             setShowCheckbox(false);
-            
+
         } else {
             setShowFuncionario(false);
             setShowCheckbox(true);
@@ -125,9 +124,9 @@ const Venda = ({ theme }) => {
     const handleKeyPress = (event) => {
         if (event.key === 'Enter') {
             handleGetPecas();
-            
+
         }
-        
+
     };
 
     function formatarValor(valor) {
@@ -149,28 +148,28 @@ const Venda = ({ theme }) => {
         } else {
             setTotal(total);
         }
-        
+
 
     }, [items, billingType]);
 
     const habilita_venda = () => {
         if (billingType == "Desconto em Folha") {
-            const habilitar_venda = formatarValor(limiteDisponivel) - (total*0.9)
+            const habilitar_venda = formatarValor(limiteDisponivel) - (total * 0.9)
             if (habilitar_venda <= 0) {
                 setDesabilitaVenda(true)
             } else {
                 setDesabilitaVenda(false)
             }
-        }else{
+        } else {
             setDesabilitaVenda(false)
         }
-        
+
     }
 
     // UseEffect para habilitar a venda
     useEffect(() => {
         habilita_venda()
-    }, [total, limiteDisponivel, billingType, nomeFuncionario ])
+    }, [total, limiteDisponivel, billingType, nomeFuncionario])
 
     const onChange = (e) => {
         if (e.target.checked) {
@@ -186,7 +185,7 @@ const Venda = ({ theme }) => {
     const handleSetName = (value) => {
         setNomeFuncionario(value);
         checkLimit(value);
-        
+
     }
 
     const checkLimit = (nome) => {
@@ -200,7 +199,7 @@ const Venda = ({ theme }) => {
                 if (res.data) {
                     setLimiteTotal(res.data.limite_total);
                     setLimiteDisponivel(res.data.limite_disponivel);
-                    
+
                 } else {
                     console.log("Resposta recebida, mas sem dados de limite.");
                 }
@@ -222,21 +221,54 @@ const Venda = ({ theme }) => {
             usuario: theUser.name,
             log_transacao: items.map((item) => {
                 return {
-                    codigo_peca: item.codigo,
+                    id: item.id,
+                    codigo: item.codigo,
+                    descricao: item.descricao,
+                    tag: item.tag,
+                    tipo: item.tipo,
+                    valor_loja: item.valor_loja,
+                    valor_50: item.valor_50,
+                    valor_sugerido: item.valor_sugerido,
+                    desc_func_10: item.desc_func_10,
                     quantidade: item.quantidade,
-                    valor: item.valor_sugerido,
-                };
+                    valor_pago: showFuncionario ? item.valor_sugerido * 0.9 : item.valor_sugerido,
+                }
             }),
             check_func: showFuncionario ? 1 : 0,
         }
 
         axios.post('https://amigosdacasa.org.br/bazar-amigosdacasa/api/finaliza_venda.php', data)
-            .then((res) => {
-                console.log("Resposta: ", res)
-            })
-            .catch((err) => {
-                console.log("Erro: ", err)
-            })
+        .then((res) => {
+            console.log("Resposta: ", res);
+            // Verifica se a venda foi finalizada com sucesso e exibe uma notificação de sucesso
+            if (res.data && res.data.success) {
+                openNotificationWithIcon('success', 'Venda finalizada com sucesso', 'Sua venda foi processada e finalizada.');
+                console.log("Resposta: ", res);
+                // Aqui você pode limpar o estado do formulário ou redirecionar o usuário
+                setItems([]);
+                setTotal(0);
+                setCode('');
+                setQuantity(1);
+                setBillingType('');
+                setNomeFuncionario('');
+                setLimiteTotal(0);
+                setLimiteDisponivel(0);
+                setDesabilitaVenda(false);
+                setShowFuncionario(false);
+                setShowCheckbox(true);
+                setSelectedParcelOption('1');
+                setParcelOptions([{ value: '1', label: '1x' }]);
+
+            } else {
+                // Se a resposta não for sucesso, exibe uma notificação de erro
+                openNotificationWithIcon('error', 'Erro ao finalizar a venda', 'Não foi possível processar a venda. Por favor, tente novamente.');
+            }
+        })
+        .catch((err) => {
+            // Se houver um erro na requisição, exibe uma notificação de erro
+            openNotificationWithIcon('error', 'Erro ao finalizar a venda', 'Houve um problema ao conectar ao servidor. Por favor, verifique sua conexão.');
+            console.log("Erro: ", err);
+        });
 
     }
 
