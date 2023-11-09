@@ -1,26 +1,24 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Flex, Typography, Input, Select, AutoComplete, Button, Table, notification, Checkbox } from 'antd';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faPercent, faDollarSign } from '@fortawesome/free-solid-svg-icons';
+import { Button, notification } from 'antd';
 import axios from 'axios';
-import { useForm, Controller, set } from 'react-hook-form';
 import { MyContext } from '../../contexts/MyContext';
+import ItemsTable from './ItemsTable';
+import Valores from './Valores';
+
 const Venda = (props) => {
     const { rootState } = useContext(MyContext);
     const { theUser } = rootState;
     const { theme } = props;
     const [funcionarios, setFuncionarios] = useState([]);
-    const [showFuncionario, setShowFuncionario] = useState(false); const [code, setCode] = useState('');
+    const [showFuncionario, setShowFuncionario] = useState(false); const [code, setCode] = useState('')
 
-    const [errorMessage, setErrorMessage] = useState('');
+    
     const [api, contextHolder] = notification.useNotification();
     const [showCheckbox, setShowCheckbox] = useState(false);
     const [selectedParcelOption, setSelectedParcelOption] = useState('1');
     const [parcelOptions, setParcelOptions] = useState([
         { value: '1', label: '1x' },
     ]);
-    const { Text } = Typography;
-    const { control, handleSubmit, setValue } = useForm();
 
     const [items, setItems] = useState([]);
     const [quantity, setQuantity] = useState(1);
@@ -61,7 +59,7 @@ const Venda = (props) => {
                     setItems([...items, item]);
                     setCode('');
                     setQuantity(1);
-                   
+
                     const valor_compra = total + item.valor_sugerido * quantity;
                     updateParcelOptions(valor_compra);
                 } else {
@@ -105,8 +103,7 @@ const Venda = (props) => {
             setLimiteDisponivel(0);
             setLimiteTotal(0);
         }
-        setBillingType(value)
-
+        setBillingType(value);
     };
 
     const handleCodeChange = (event) => {
@@ -119,48 +116,6 @@ const Venda = (props) => {
             setCode(number.substring(1).padStart(6, '0'));
         }
     };
-
-    const columns = [
-        {
-            title: 'Código',
-            dataIndex: 'codigo',
-            key: 'codigo',
-        },
-        {
-            title: 'Descrição',
-            dataIndex: 'descricao',
-            key: 'descricao',
-        },
-        {
-            title: 'Quantidade',
-            dataIndex: 'quantidade',
-            key: 'quantidade',
-        },
-        {
-            title: 'Valor',
-            dataIndex: 'valor_sugerido',
-            key: 'valor_sugerido',
-        },
-        {
-            title: 'Ação',
-            key: 'action',
-            render: (text, record) => (
-                <Button onClick={() => handleRemoveItem(record)}><FontAwesomeIcon color={theme.token.colorError} icon={faTrash} /></Button>
-            ),
-        },
-    ];
-
-    const handleRemoveItem = (item) => {
-        const updatedItems = items.filter((i) => i.id !== item.id);
-        setItems(updatedItems);
-
-        const newTotal = updatedItems.reduce((acc, item) => acc + item.valor_sugerido * item.quantidade, 0);
-        setTotal(newTotal);
-
-        updateParcelOptions(newTotal);
-        habilita_venda()
-    };
-
 
     const handleKeyPress = (event) => {
         if (event.key === 'Enter') {
@@ -177,7 +132,7 @@ const Venda = (props) => {
         }
     }
 
-     useEffect(() => {
+    useEffect(() => {
         let total = 0;
         items.forEach((item) => {
             total += item.valor_sugerido * item.quantidade;
@@ -291,140 +246,34 @@ const Venda = (props) => {
                 {contextHolder}
                 <div style={{ width: '100%', display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '30px' }}>
 
-                    <div style={{ width: '48%', minWidth: '300px', display: 'flex', flexDirection: 'column', gap: '30px', flexGrow: '1' }}>
-                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', width: '100%' }}>
-                            <div style={{ width: '70%' }}>
-                                <Typography.Title level={5}>Código da peça</Typography.Title>
-                                <Input value={code} onChange={handleCodeChange} onKeyPress={handleKeyPress} className='customer-input' type="text" />
-                            </div>
-
-                            <div style={{ width: '30%' }}>
-                                <Typography.Title level={5}>Quantidade</Typography.Title>
-                                <Input className='input_quant customer-input' type="text" onChange={(e) => setQuantity(e.target.value)} value={quantity} onKeyPress={handleKeyPress} />
-                            </div>
-
-
-                        </div>
-                        <Table columns={columns} dataSource={items} size="small" pagination={{ pageSize: 10 }} />
-                    </div>
-                    <div style={{ width: '48%', minWidth: '300px', paddingTop: '60px', flexGrow: '1' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <div style={{ display: 'flex', gap: '10px' }}>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    <Select
-                                        placeholder="Forma de Pagamento"
-                                        style={{
-                                            minWidth: 200,
-                                        }}
-                                        onChange={handleChangeBillingType}
-                                        options={[
-                                            {
-                                                value: 'Credito',
-                                                label: 'Crédito',
-                                            },
-                                            {
-                                                value: 'Debito',
-                                                label: 'Débito',
-                                            },
-                                            {
-                                                value: 'Desconto em Folha',
-                                                label: 'Desconto em Folha',
-                                            },
-                                            {
-                                                value: 'Dinheiro',
-                                                label: 'Dinheiro',
-                                            },
-                                            {
-                                                value: 'Pix',
-                                                label: 'PIX',
-                                            },
-                                            {
-                                                value: 'Acolhido',
-                                                label: 'Acolhido',
-                                            },
-                                        ]}
-                                    />
-                                    {showCheckbox &&
-                                        <Checkbox onChange={onChange}>Funcionário</Checkbox>
-                                    }
-                                </div>
-
-                                {showFuncionario &&
-                                    <AutoComplete
-                                        style={{
-                                            width: 200,
-                                        }}
-                                        options={options}
-                                        id='nome_funcionario'
-                                        placeholder="Funcionário"
-                                        filterOption={(inputValue, option) =>
-                                            option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
-                                        }
-                                        onSelect={(value) => handleSetName(value)}
-                                    />
-                                }
-                            </div>
-                            <div style={{ display: 'flex', gap: '10px', height: '70px' }}>
-                                {showFuncionario &&
-                                    <>
-                                        <div style={{ width: '30%' }}>
-                                            <Typography.Title level={5}>Limite disponível</Typography.Title>
-                                            <Input value={limiteDisponivel} style={{ background: 'lightgrey' }} readOnly />
-                                        </div>
-                                        <div style={{ width: '30%' }}>
-                                            <Typography.Title level={5}>Limite total</Typography.Title>
-                                            <Input value={limiteTotal} style={{ background: 'lightgrey' }} readOnly />
-                                        </div>
-                                    </>
-                                }
-
-                            </div>
-                        </div>
-
-                        <div style={{ display: 'flex', gap: '20px' }}>
-                            <div style={{ width: '50%' }}>
-                                <Typography.Title level={5}>Valor <FontAwesomeIcon icon={faDollarSign} /></Typography.Title>
-                                <input type="hidden" id="total" value={total} />
-                                <Input disabled style={{ color: theme.token.colorTextBase }} className='customer-input' type="text" value={total.toLocaleString(
-                                    'pt-BR', {
-                                    style: 'currency',
-                                    currency: 'BRL',
-                                })} />
-                            </div>
-                            <div style={{ width: '20%' }}>
-                                <Typography.Title level={5}>Parcelas</Typography.Title>
-                                <Select
-                                    id='quantidade_parcelas'
-                                    className='customer-input'
-                                    placeholder="Parcelas"
-                                    style={{ minWidth: 200 }}
-                                    options={parcelOptions}
-                                    value={selectedParcelOption}
-                                    onChange={(value) => setSelectedParcelOption(value)}
-                                />
-                                <Text italic>
-                                    {total > 0 ?
-                                        selectedParcelOption == '1' ? `1x ${total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}` : selectedParcelOption == '2' ? `2x ${(total / 2).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}` : `3x ${(total / 3).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
-                                        : ''}
-                                </Text>
-
-                            </div>
-                        </div>
-
-                        {showFuncionario &&
-                            <div style={{ width: '50%' }}>
-                                <Typography.Title level={5}>Valor com desconto <FontAwesomeIcon icon={faPercent} /></Typography.Title>
-                                <input type="hidden" id="total_desconto" value={total * 0.9} />
-                                <Input disabled style={{ color: theme.token.colorSuccess }} className='customer-input' type="text" value={(total * 0.9).toLocaleString(
-                                    'pt-BR', {
-                                    style: 'currency',
-                                    currency: 'BRL',
-                                })} />
-                            </div>
-                        }
-
-                    </div>
-
+                    <ItemsTable
+                        code={code}
+                        handleCodeChange={handleCodeChange}
+                        handleKeyPress={handleKeyPress}
+                        quantity={quantity}
+                        setQuantity={setQuantity}
+                        items={items}
+                        theme={theme}
+                        setItems={setItems}
+                        setTotal={setTotal}
+                        updateParcelOptions={updateParcelOptions}
+                        habilita_venda={habilita_venda}
+                    />
+                    <Valores
+                        handleChangeBillingType={handleChangeBillingType}
+                        showCheckbox={showCheckbox}
+                        onChange={onChange}
+                        showFuncionario={showFuncionario}
+                        options={options}
+                        handleSetName={handleSetName}
+                        limiteDisponivel={limiteDisponivel}
+                        limiteTotal={limiteTotal}
+                        total={total}
+                        theme={theme}
+                        parcelOptions={parcelOptions}
+                        setSelectedParcelOption={setSelectedParcelOption}
+                        selectedParcelOption={selectedParcelOption}
+                    />
                 </div>
                 <Button type="primary" onClick={() => handleViewData()} style={{ marginTop: '30px' }} disabled={desabilitaVenda} >
                     Finalizar Venda
