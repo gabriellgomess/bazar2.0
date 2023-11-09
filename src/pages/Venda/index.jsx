@@ -5,29 +5,30 @@ import { MyContext } from '../../contexts/MyContext';
 import ItemsTable from './ItemsTable';
 import Valores from './Valores';
 
-const Venda = (props) => {
+const Venda = ({ theme }) => {
     const { rootState } = useContext(MyContext);
     const { theUser } = rootState;
-    const { theme } = props;
+
+    // Estados para funcionários e venda
     const [funcionarios, setFuncionarios] = useState([]);
-    const [showFuncionario, setShowFuncionario] = useState(false); const [code, setCode] = useState('')
-
-    
-    const [api, contextHolder] = notification.useNotification();
-    const [showCheckbox, setShowCheckbox] = useState(false);
-    const [selectedParcelOption, setSelectedParcelOption] = useState('1');
-    const [parcelOptions, setParcelOptions] = useState([
-        { value: '1', label: '1x' },
-    ]);
-
     const [items, setItems] = useState([]);
-    const [quantity, setQuantity] = useState(1);
     const [total, setTotal] = useState(0);
     const [billingType, setBillingType] = useState('');
-    const [nomeFuncionario, setNomeFuncionario] = useState('')
-    const [limiteTotal, setLimiteTotal] = useState(0)
-    const [limiteDisponivel, setLimiteDisponivel] = useState(0)
-    const [desabilitaVenda, setDesabilitaVenda] = useState(false)
+    const [nomeFuncionario, setNomeFuncionario] = useState('');
+    const [limiteTotal, setLimiteTotal] = useState(0);
+    const [limiteDisponivel, setLimiteDisponivel] = useState(0);
+    const [desabilitaVenda, setDesabilitaVenda] = useState(false);
+    const [showCheckbox, setShowCheckbox] = useState(true);
+    const [quantity, setQuantity] = useState(1);
+    
+    // Estados para UI
+    const [code, setCode] = useState('');
+    const [showFuncionario, setShowFuncionario] = useState(false);
+    const [parcelOptions, setParcelOptions] = useState([{ value: '1', label: '1x' }]);
+    const [selectedParcelOption, setSelectedParcelOption] = useState('1');
+    
+    // API de notificação
+    const [api, contextHolder] = notification.useNotification();
 
     const openNotificationWithIcon = (type) => {
         api[type]({
@@ -59,9 +60,11 @@ const Venda = (props) => {
                     setItems([...items, item]);
                     setCode('');
                     setQuantity(1);
-
+                    
                     const valor_compra = total + item.valor_sugerido * quantity;
                     updateParcelOptions(valor_compra);
+
+                    
                 } else {
                     console.error('Erro: Não foi possível encontrar a peça', res);
                     openNotificationWithIcon('warning')
@@ -85,6 +88,7 @@ const Venda = (props) => {
                 ]);
             }
         }
+        
     };
 
     const options = funcionarios.map((funcionario) => {
@@ -97,6 +101,7 @@ const Venda = (props) => {
         if (value === 'Desconto em Folha') {
             setShowFuncionario(true);
             setShowCheckbox(false);
+            
         } else {
             setShowFuncionario(false);
             setShowCheckbox(true);
@@ -120,8 +125,9 @@ const Venda = (props) => {
     const handleKeyPress = (event) => {
         if (event.key === 'Enter') {
             handleGetPecas();
+            
         }
-        habilita_venda()
+        
     };
 
     function formatarValor(valor) {
@@ -143,20 +149,28 @@ const Venda = (props) => {
         } else {
             setTotal(total);
         }
-        habilita_venda()
+        
 
     }, [items, billingType]);
 
     const habilita_venda = () => {
         if (billingType == "Desconto em Folha") {
-            const habilita_venda = formatarValor(limiteDisponivel) - total
-            if (habilita_venda <= 0) {
+            const habilitar_venda = formatarValor(limiteDisponivel) - (total*0.9)
+            if (habilitar_venda <= 0) {
                 setDesabilitaVenda(true)
             } else {
                 setDesabilitaVenda(false)
             }
+        }else{
+            setDesabilitaVenda(false)
         }
+        
     }
+
+    // UseEffect para habilitar a venda
+    useEffect(() => {
+        habilita_venda()
+    }, [total, limiteDisponivel, billingType, nomeFuncionario ])
 
     const onChange = (e) => {
         if (e.target.checked) {
@@ -172,7 +186,7 @@ const Venda = (props) => {
     const handleSetName = (value) => {
         setNomeFuncionario(value);
         checkLimit(value);
-        habilita_venda()
+        
     }
 
     const checkLimit = (nome) => {
@@ -186,7 +200,7 @@ const Venda = (props) => {
                 if (res.data) {
                     setLimiteTotal(res.data.limite_total);
                     setLimiteDisponivel(res.data.limite_disponivel);
-                    habilita_venda()
+                    
                 } else {
                     console.log("Resposta recebida, mas sem dados de limite.");
                 }

@@ -90,6 +90,11 @@ const Valores = ({ theme, handleChangeBillingType, showCheckbox, onChange, showF
                     style: 'currency',
                     currency: 'BRL',
                 })} />
+                <Text italic>
+                    {total > 0 ?
+                        selectedParcelOption == '1' ? `1x ${total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}` : selectedParcelOption == '2' ? `2x ${(total / 2).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}` : `3x ${(total / 3).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
+                        : ''}
+                </Text>
             </div>
             <div style={{ width: '20%' }}>
                 <Typography.Title level={5}>Parcelas</Typography.Title>
@@ -101,12 +106,7 @@ const Valores = ({ theme, handleChangeBillingType, showCheckbox, onChange, showF
                     options={parcelOptions}
                     value={selectedParcelOption}
                     onChange={(value) => setSelectedParcelOption(value)}
-                />
-                <Text italic>
-                    {total > 0 ?
-                        selectedParcelOption == '1' ? `1x ${total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}` : selectedParcelOption == '2' ? `2x ${(total / 2).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}` : `3x ${(total / 3).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
-                        : ''}
-                </Text>
+                />                
 
             </div>
         </div>
@@ -120,6 +120,11 @@ const Valores = ({ theme, handleChangeBillingType, showCheckbox, onChange, showF
                     style: 'currency',
                     currency: 'BRL',
                 })} />
+                <Text italic>
+                    {total > 0 ?
+                        selectedParcelOption == '1' ? `1x ${(total*0.9).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}` : selectedParcelOption == '2' ? `2x ${((total*0.9) / 2).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}` : `3x ${((total*0.9) / 3).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
+                        : ''}
+                </Text>
             </div>
         }
     </div>
