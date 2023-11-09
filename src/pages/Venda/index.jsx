@@ -1,13 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Flex, Typography, Input, Select, AutoComplete, Button, Table, notification, Checkbox } from 'antd'; // Importe o componente Button e Table
+import { Flex, Typography, Input, Select, AutoComplete, Button, Table, notification, Checkbox } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faPercent, faDollarSign } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { useForm, Controller, set } from 'react-hook-form';
 import { MyContext } from '../../contexts/MyContext';
-
-
-
 const Venda = (props) => {
     const { rootState } = useContext(MyContext);
     const { theUser } = rootState;
@@ -25,14 +22,14 @@ const Venda = (props) => {
     const { Text } = Typography;
     const { control, handleSubmit, setValue } = useForm();
 
-    const [items, setItems] = useState([]); // Estado para armazenar a lista de itens
-    const [quantity, setQuantity] = useState(1); // Estado para armazenar a quantidade de itens
-    const [total, setTotal] = useState(0); // Estado para armazenar o total da venda
-    const [billingType, setBillingType] = useState(''); // Estado para armazenar a forma de pagamento
+    const [items, setItems] = useState([]);
+    const [quantity, setQuantity] = useState(1);
+    const [total, setTotal] = useState(0);
+    const [billingType, setBillingType] = useState('');
     const [nomeFuncionario, setNomeFuncionario] = useState('')
     const [limiteTotal, setLimiteTotal] = useState(0)
     const [limiteDisponivel, setLimiteDisponivel] = useState(0)
-
+    const [desabilitaVenda, setDesabilitaVenda] = useState(false)
 
     const openNotificationWithIcon = (type) => {
         api[type]({
@@ -41,7 +38,6 @@ const Venda = (props) => {
                 'Verifique se o código digitado está correto, em caso de dúvida, consulte a aba Estoque.',
             placement: 'bottom',
         });
-
     };
 
     useEffect(() => {
@@ -61,14 +57,11 @@ const Venda = (props) => {
             .then((res) => {
                 if (res.data.status === 'success') {
                     const item = res.data.peca;
-                    item.quantidade = quantity; // Defina a quantidade inicial como 1
-                    setItems([...items, item]); // Adicione o item à lista
-
-                    // Limpe o código e a quantidade
+                    item.quantidade = quantity;
+                    setItems([...items, item]);
                     setCode('');
                     setQuantity(1);
-
-                    // Verifique o valor da compra e atualize as opções de parcelamento
+                   
                     const valor_compra = total + item.valor_sugerido * quantity;
                     updateParcelOptions(valor_compra);
                 } else {
@@ -127,7 +120,6 @@ const Venda = (props) => {
         }
     };
 
-    // Defina as colunas para a tabela
     const columns = [
         {
             title: 'Código',
@@ -158,29 +150,34 @@ const Venda = (props) => {
         },
     ];
 
-    // Função para remover um item da lista
     const handleRemoveItem = (item) => {
         const updatedItems = items.filter((i) => i.id !== item.id);
         setItems(updatedItems);
 
-        // Recalcule o valor total após a remoção
         const newTotal = updatedItems.reduce((acc, item) => acc + item.valor_sugerido * item.quantidade, 0);
         setTotal(newTotal);
 
-        // Verifique o valor da compra e atualize as opções de parcelamento
         updateParcelOptions(newTotal);
+        habilita_venda()
     };
 
 
-    // Função para lidar com a tecla "Enter" pressionada
     const handleKeyPress = (event) => {
         if (event.key === 'Enter') {
             handleGetPecas();
         }
+        habilita_venda()
     };
 
-    // Atualize o total sempre que a lista de itens for alterada
-    useEffect(() => {
+    function formatarValor(valor) {
+        if (valor) {
+            let valorSemPonto = valor.replace(/\./g, '');
+            let valorFormatado = valorSemPonto.replace(/,/, '.');
+            return parseFloat(valorFormatado);
+        }
+    }
+
+     useEffect(() => {
         let total = 0;
         items.forEach((item) => {
             total += item.valor_sugerido * item.quantidade;
@@ -191,8 +188,20 @@ const Venda = (props) => {
         } else {
             setTotal(total);
         }
+        habilita_venda()
 
     }, [items, billingType]);
+
+    const habilita_venda = () => {
+        if (billingType == "Desconto em Folha") {
+            const habilita_venda = formatarValor(limiteDisponivel) - total
+            if (habilita_venda <= 0) {
+                setDesabilitaVenda(true)
+            } else {
+                setDesabilitaVenda(false)
+            }
+        }
+    }
 
     const onChange = (e) => {
         if (e.target.checked) {
@@ -206,16 +215,12 @@ const Venda = (props) => {
     };
 
     const handleSetName = (value) => {
-
         setNomeFuncionario(value);
-
-        console.log("Nome do funcionário EVENT: ", value)
         checkLimit(value);
+        habilita_venda()
     }
 
     const checkLimit = (nome) => {
-        console.log("Inicia busca do limite")
-        console.log("Nome func_ ", nome)
         if (!nome) {
             console.log("O nome do funcionário é obrigatório.");
             return;
@@ -223,12 +228,10 @@ const Venda = (props) => {
 
         axios.post('https://amigosdacasa.org.br/bazar-amigosdacasa/api/consulta_limites.php', { nome_funcionario: nome })
             .then((res) => {
-                console.log("Retorno consulta limite: ", res)
                 if (res.data) {
-                    console.log("Limite Total: ", res.data.limite_total);
-                    console.log("Limite Disponível: ", res.data.limite_disponivel);
                     setLimiteTotal(res.data.limite_total);
                     setLimiteDisponivel(res.data.limite_disponivel);
+                    habilita_venda()
                 } else {
                     console.log("Resposta recebida, mas sem dados de limite.");
                 }
@@ -238,21 +241,7 @@ const Venda = (props) => {
             });
     }
 
-
     const handleViewData = () => {
-        // console.log("Itens: ", items)
-        // console.log("Forma de pagamento: ", billingType)
-        // console.log("É funcionário: ", showFuncionario)
-        // console.log("Nome do funcionário: ", nomeFuncionario)
-        // console.log("Quantidade de parcelas: ", selectedParcelOption)
-        // if (showFuncionario) {
-        //     console.log("Total: ", total * 0.9)
-        //     console.log("Valor parcela: ", total * 0.9 / selectedParcelOption)
-        // } else {
-        //     console.log("Total: ", total)
-        //     console.log("Valor parcela: ", total / selectedParcelOption)
-        // }
-
         const data = {
             nome_funcionario: nomeFuncionario,
             data_compra: new Date().toISOString().slice(0, 10),
@@ -279,8 +268,6 @@ const Venda = (props) => {
             .catch((err) => {
                 console.log("Erro: ", err)
             })
-
-
 
     }
 
@@ -379,16 +366,16 @@ const Venda = (props) => {
                             </div>
                             <div style={{ display: 'flex', gap: '10px', height: '70px' }}>
                                 {showFuncionario &&
-                                <>
-                                    <div style={{ width: '30%' }}>
-                                        <Typography.Title level={5}>Limite disponível</Typography.Title>
-                                        <Input value={limiteDisponivel} style={{ background: 'lightgrey' }} readOnly />
-                                    </div>
-                                    <div style={{ width: '30%' }}>
-                                        <Typography.Title level={5}>Limite total</Typography.Title>
-                                        <Input value={limiteTotal} style={{ background: 'lightgrey' }} readOnly />
-                                    </div>
-                                </>
+                                    <>
+                                        <div style={{ width: '30%' }}>
+                                            <Typography.Title level={5}>Limite disponível</Typography.Title>
+                                            <Input value={limiteDisponivel} style={{ background: 'lightgrey' }} readOnly />
+                                        </div>
+                                        <div style={{ width: '30%' }}>
+                                            <Typography.Title level={5}>Limite total</Typography.Title>
+                                            <Input value={limiteTotal} style={{ background: 'lightgrey' }} readOnly />
+                                        </div>
+                                    </>
                                 }
 
                             </div>
@@ -439,7 +426,7 @@ const Venda = (props) => {
                     </div>
 
                 </div>
-                <Button type="primary" onClick={() => handleViewData()} style={{ marginTop: '30px' }}>
+                <Button type="primary" onClick={() => handleViewData()} style={{ marginTop: '30px' }} disabled={desabilitaVenda} >
                     Finalizar Venda
                 </Button>
 
