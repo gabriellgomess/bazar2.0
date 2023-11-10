@@ -19,7 +19,7 @@ const Venda = ({ theme }) => {
     const [limiteDisponivel, setLimiteDisponivel] = useState(0);
     const [desabilitaVenda, setDesabilitaVenda] = useState(false);
     const [showCheckbox, setShowCheckbox] = useState(true);
-    const [quantity, setQuantity] = useState(1);
+    const [quantity, setQuantity] = useState('1');
 
     // Estados para UI
     const [code, setCode] = useState('');
@@ -305,7 +305,7 @@ const Venda = ({ theme }) => {
                     }
                 </style>
                 {contextHolder}
-                <div style={{ width: '100%', display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '30px' }}>
+                <div style={{ width: '100%', display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '30px', paddingTop: '0'}}>
 
                     <ItemsTable
                         code={code}

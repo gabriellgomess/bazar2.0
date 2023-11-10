@@ -313,7 +313,7 @@ const Estoque = (props) => {
  
 
     return (
-        <div >
+        <div>
             <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
                 {/* link download pdf */}
                 <Button ghost style={{ borderColor: theme.token.colorPDF, color: theme.token.colorPDF }} icon={<FontAwesomeIcon icon={faFilePdf}/>}  href='https://amigosdacasa.org.br/bazar-amigosdacasa/api/pdf_estoque.php' target='_blank' >
@@ -323,9 +323,9 @@ const Estoque = (props) => {
                     Adicionar peça
                 </Button>
             </div>
-            <Table scroll={{y: 440 }} columns={columns} dataSource={data} />
+            <Table scroll={{y: 350 }} columns={columns} dataSource={data} size="small" />
 
-            <Modal title="Adicionar peça" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+            <Modal title="Adicionar peça" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel} style={{top: 20}}>
                 <Form layout="vertical">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                         <Form.Item label="Código" style={{ width: '150px' }}>
@@ -364,6 +364,7 @@ const Estoque = (props) => {
                 visible={isEditModalVisible}
                 onOk={() => handleEditOk(formValues)}
                 onCancel={handleEditCancel}
+                style={{top: 20}}
             >
                 <Form layout="vertical">
                     {/* Código - Apenas leitura */}

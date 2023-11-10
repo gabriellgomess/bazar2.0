@@ -120,8 +120,8 @@ const Template = (props) => {
         </Header>
         <Content
           style={{
-            margin: '24px 16px',
-            padding: 24,
+            margin: '10px 16px',
+            padding: '0px 16px',
             height: 'calc(100vh - 112px)',
 
           }}>

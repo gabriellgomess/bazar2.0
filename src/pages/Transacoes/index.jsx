@@ -272,7 +272,8 @@ const Transacoes = () => {
                 onChange={handleTableChange}
                 rowKey="id"
                 expandable={{ expandedRowRender }}
-                scroll={{y: 440 }}
+                scroll={{y: 350 }}
+                size='small'
             />
             <ExportToExcel apiData={filteredData} fileName="nome_do_arquivo_filtrado" />
         </>
