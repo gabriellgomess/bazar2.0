@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Button, notification } from 'antd';
+import { Button, notification, Alert } from 'antd';
 import axios from 'axios';
 import { MyContext } from '../../contexts/MyContext';
 import ItemsTable from './ItemsTable';
@@ -210,6 +210,7 @@ const Venda = ({ theme }) => {
     }
 
     const handleViewData = () => {
+
         const data = {
             nome_funcionario: nomeFuncionario,
             data_compra: new Date().toISOString().slice(0, 10),
@@ -236,39 +237,53 @@ const Venda = ({ theme }) => {
             }),
             check_func: showFuncionario ? 1 : 0,
         }
+        if (data.check_func === 1 || data.forma_pagamento === 'Desconto em Folha') {
+            if (!data.nome_funcionario) {
+                openNotificationWithIcon('error', 'Erro ao finalizar a venda', 'Selecione o funcionário.')
+                return;
+            }
+        }
+        if (data.total_pecas <= 0) {
+            openNotificationWithIcon('error', 'Erro ao finalizar a venda', 'Não há peças na venda.')
+            return;
+        }
+        if (!data.forma_pagamento) {
+            openNotificationWithIcon('error', 'Erro ao finalizar a venda', 'Selecione a forma de pagamento')
+            return;
+        }
 
         axios.post('https://amigosdacasa.org.br/bazar-amigosdacasa/api/finaliza_venda.php', data)
-        .then((res) => {
-            console.log("Resposta: ", res);
-            // Verifica se a venda foi finalizada com sucesso e exibe uma notificação de sucesso
-            if (res.data && res.data.success) {
-                openNotificationWithIcon('success', 'Venda finalizada com sucesso', 'Sua venda foi processada e finalizada.');
+            .then((res) => {
                 console.log("Resposta: ", res);
-                // Aqui você pode limpar o estado do formulário ou redirecionar o usuário
-                setItems([]);
-                setTotal(0);
-                setCode('');
-                setQuantity(1);
-                setBillingType('');
-                setNomeFuncionario('');
-                setLimiteTotal(0);
-                setLimiteDisponivel(0);
-                setDesabilitaVenda(false);
-                setShowFuncionario(false);
-                setShowCheckbox(true);
-                setSelectedParcelOption('1');
-                setParcelOptions([{ value: '1', label: '1x' }]);
+                // Verifica se a venda foi finalizada com sucesso e exibe uma notificação de sucesso
+                if (res.data && res.data.success) {
+                    openNotificationWithIcon('success', 'Venda finalizada com sucesso', 'Sua venda foi processada e finalizada.');
+                    console.log("Resposta: ", res);
+                    // Aqui você pode limpar o estado do formulário ou redirecionar o usuário
+                    setItems([]);
+                    setTotal(0);
+                    setCode('');
+                    setQuantity(1);
+                    setBillingType('');
+                    setNomeFuncionario('');
+                    setLimiteTotal(0);
+                    setLimiteDisponivel(0);
+                    setDesabilitaVenda(false);
+                    setShowFuncionario(false);
+                    setShowCheckbox(true);
+                    setSelectedParcelOption('1');
+                    setParcelOptions([{ value: '1', label: '1x' }]);
 
-            } else {
-                // Se a resposta não for sucesso, exibe uma notificação de erro
-                openNotificationWithIcon('error', 'Erro ao finalizar a venda', 'Não foi possível processar a venda. Por favor, tente novamente.');
-            }
-        })
-        .catch((err) => {
-            // Se houver um erro na requisição, exibe uma notificação de erro
-            openNotificationWithIcon('error', 'Erro ao finalizar a venda', 'Houve um problema ao conectar ao servidor. Por favor, verifique sua conexão.');
-            console.log("Erro: ", err);
-        });
+                } else {
+                    // Se a resposta não for sucesso, exibe uma notificação de erro
+                    openNotificationWithIcon('error', 'Erro ao finalizar a venda', 'Não foi possível processar a venda. Por favor, tente novamente.');
+                }
+            })
+            .catch((err) => {
+                // Se houver um erro na requisição, exibe uma notificação de erro
+                openNotificationWithIcon('error', 'Erro ao finalizar a venda', 'Houve um problema ao conectar ao servidor. Por favor, verifique sua conexão.');
+                console.log("Erro: ", err);
+            });
 
     }
 
@@ -319,6 +334,7 @@ const Venda = ({ theme }) => {
                         parcelOptions={parcelOptions}
                         setSelectedParcelOption={setSelectedParcelOption}
                         selectedParcelOption={selectedParcelOption}
+                        billingType={billingType}
                     />
                 </div>
                 <Button type="primary" onClick={() => handleViewData()} style={{ marginTop: '30px' }} disabled={desabilitaVenda} >
@@ -326,6 +342,16 @@ const Venda = ({ theme }) => {
                 </Button>
 
             </form>
+            {desabilitaVenda &&
+                <Alert
+                style={{marginTop: '30px'}}
+                    message="Limite excedido!"
+                    description="Não há limite disponível para o funcionário selecionado."
+                    type="warning"
+                    showIcon
+                />
+            }
+
         </div>
     );
 };

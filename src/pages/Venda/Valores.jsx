@@ -2,7 +2,7 @@ import { Typography, Input, Select, AutoComplete,  Checkbox } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPercent, faDollarSign } from '@fortawesome/free-solid-svg-icons';
 
-const Valores = ({ theme, handleChangeBillingType, showCheckbox, onChange, showFuncionario, options, handleSetName, limiteDisponivel, limiteTotal, total, parcelOptions, setSelectedParcelOption, selectedParcelOption }) => {
+const Valores = ({ theme, handleChangeBillingType, showCheckbox, onChange, showFuncionario, options, handleSetName, limiteDisponivel, limiteTotal, total, parcelOptions, setSelectedParcelOption, selectedParcelOption, billingType }) => {
 
     const { Text } = Typography;
 
@@ -65,7 +65,7 @@ const Valores = ({ theme, handleChangeBillingType, showCheckbox, onChange, showF
                 }
             </div>
             <div style={{ display: 'flex', gap: '10px', height: '70px' }}>
-                {showFuncionario &&
+                {billingType == 'Desconto em Folha' &&
                     <>
                         <div style={{ width: '30%' }}>
                             <Typography.Title level={5}>Limite disponível</Typography.Title>
@@ -82,6 +82,7 @@ const Valores = ({ theme, handleChangeBillingType, showCheckbox, onChange, showF
         </div>
 
         <div style={{ display: 'flex', gap: '20px' }}>
+            {!showFuncionario &&
             <div style={{ width: '50%' }}>
                 <Typography.Title level={5}>Valor <FontAwesomeIcon icon={faDollarSign} /></Typography.Title>
                 <input type="hidden" id="total" value={total} />
@@ -96,22 +97,8 @@ const Valores = ({ theme, handleChangeBillingType, showCheckbox, onChange, showF
                         : ''}
                 </Text>
             </div>
-            <div style={{ width: '20%' }}>
-                <Typography.Title level={5}>Parcelas</Typography.Title>
-                <Select
-                    id='quantidade_parcelas'
-                    className='customer-input'
-                    placeholder="Parcelas"
-                    style={{ minWidth: 200 }}
-                    options={parcelOptions}
-                    value={selectedParcelOption}
-                    onChange={(value) => setSelectedParcelOption(value)}
-                />                
-
-            </div>
-        </div>
-
-        {showFuncionario &&
+            }
+            {showFuncionario &&
             <div style={{ width: '50%' }}>
                 <Typography.Title level={5}>Valor com desconto <FontAwesomeIcon icon={faPercent} /></Typography.Title>
                 <input type="hidden" id="total_desconto" value={total * 0.9} />
@@ -127,6 +114,22 @@ const Valores = ({ theme, handleChangeBillingType, showCheckbox, onChange, showF
                 </Text>
             </div>
         }
+            <div style={{ width: '20%' }}>
+                <Typography.Title level={5}>Parcelas</Typography.Title>
+                <Select
+                    id='quantidade_parcelas'
+                    className='customer-input'
+                    placeholder="Parcelas"
+                    style={{ minWidth: 200 }}
+                    options={parcelOptions}
+                    value={selectedParcelOption}
+                    onChange={(value) => setSelectedParcelOption(value)}
+                />                
+
+            </div>
+        </div>
+
+        
     </div>
     )
 }

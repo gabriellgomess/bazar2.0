@@ -1,9 +1,9 @@
-import React, { useState, useContext  } from 'react';
+import React, { useState, useContext } from 'react';
 import { MyContext } from '../contexts/MyContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShirt, faChartSimple, faGears, faChevronRight, faChevronLeft, faUserGear, faBoxesStacked, faCartShopping } from '@fortawesome/free-solid-svg-icons';
 
-import { Layout, Menu, Button, Typography } from 'antd';
+import { Layout, Menu, Button, Typography, Avatar } from 'antd';
 const { Header, Sider, Content } = Layout;
 
 
@@ -28,18 +28,49 @@ const Template = (props) => {
   const { Title } = Typography;
   const { theme } = props;
 
+  // Função auxiliar para extrair as iniciais
+  const getInitials = (name) => {
+    const parts = name.split(' ');
+    if (parts.length > 1) {
+      return `${parts[0][0]}${parts[parts.length - 1][0]}`;
+    }
+    return parts[0][0];
+  }
+
+  // Função auxiliar para extrair o primeiro e último nome
+  const getFirstAndLastName = (name) => {
+    const parts = name.trim().split(' ');
+    if (parts.length > 1) {
+      return `${parts[0]} ${parts[parts.length - 1]}`;
+    }
+    return name;
+  }
+
   return (
     <Layout>
-      <Sider trigger={null} collapsible collapsed={collapsed}>        
+      <Sider trigger={null} collapsible collapsed={collapsed}>
         <Menu
           style={{ backgroundColor: theme.token.colorBgMenus, height: '100vh', color: theme.token.colorTextBase }}
           theme="dark"
           mode="inline"
           defaultSelectedKeys={['1']}
-        >   
-        {!collapsed &&
-          <Title level={5} style={{ color: theme.token.colorTextBase, textAlign: 'center', marginTop: '24px', marginBottom: '24px' }}>Olá, {theUser.name} </Title>  
-        }     
+        >
+          {!collapsed &&
+            <Title level={5} style={{ color: theme.token.colorTextBase, textAlign: 'center', marginTop: '24px', marginBottom: '24px' }}>Olá, {getFirstAndLastName(theUser.name)} </Title>
+          }
+          {collapsed &&
+            <div style={{ width: '100%', height: '66px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <Avatar
+                style={{
+                  backgroundColor: '#fde3cf',
+                  color: '#f56a00',
+                }}
+              >
+                {getInitials(theUser.name)}
+              </Avatar>
+            </div>
+
+          }
 
           <Menu.Item key="1" icon={<FontAwesomeIcon icon={faShirt} />}>
             <Link to={`${import.meta.env.VITE_REACT_APP_PATH}painel/venda`}>Venda</Link>
