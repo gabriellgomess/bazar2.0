@@ -3,7 +3,7 @@
   "private": true,
   "version": "2.0.0",
   "type": "module",
-  "homepage": "https://amigosdacasa.org.br/bazar2",
+  "homepage": "https://amigosdacasa.org.br/bazar2/painel",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
