@@ -13,8 +13,8 @@ function Login() {
 
   const initialState = {
     userInfo: {
-      email: "",
-      password: "",
+      usuario: "",
+      senha: "",
     },
     errorMsg: "",
     successMsg: "",
@@ -85,14 +85,14 @@ function Login() {
           <Form onFinish={submitForm} layout="vertical">
             <Form.Item label="E-mail">
               <Input
-                name="email"
+                name="usuario"
                 type="user"
-                value={state.userInfo.email}
+                value={state.userInfo.usuario}
                 onChange={onChangeValue}
               />
             </Form.Item>
             <Form.Item label="Senha">
-              <Input.Password name="password" value={state.userInfo.password} onChange={onChangeValue} />
+              <Input.Password name="senha" value={state.userInfo.senha} onChange={onChangeValue} />
             </Form.Item>
             {errorMsg}
             {successMsg}
@@ -103,11 +103,11 @@ function Login() {
             </div>
 
           </Form>
-          {/* <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+          <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
         <Button onClick={toggleNav} variant="outlined" style={{ width: '50%' }}>
           Cadastrar
         </Button>
-      </div> */}
+      </div>
         </Card>
       </div>
 

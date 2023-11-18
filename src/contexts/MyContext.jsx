@@ -27,19 +27,21 @@ const MyContextProvider = ({ children }) => {
     setIsAuth(false);
   };
 
-  const registerUser = async (user) => {
+  const registerUser = async (userData) => {
     const register = await Axios.post("register.php", {
-      name: user.name,
-      email: user.email,
-      password: user.password,
+      nome: userData.nome,
+      matricula: userData.matricula,
+      usuario: userData.usuario,
+      senha: userData.senha,
+      nivel_acesso: userData.nivel_acesso
     });
     return register.data;
   };
 
-  const loginUser = async (user) => {
+  const loginUser = async (loginData) => {
     const login = await Axios.post("login.php", {
-      email: user.email,
-      password: user.password,
+      usuario: loginData.usuario,
+      senha: loginData.senha,
     });
     return login.data;
   };

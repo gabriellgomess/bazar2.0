@@ -305,7 +305,7 @@ const Venda = ({ theme }) => {
                     }
                 </style>
                 {contextHolder}
-                <div style={{ width: '100%', display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '30px', paddingTop: '0'}}>
+                <div style={{ width: '100%', display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '30px', paddingTop: '0' }}>
 
                     <ItemsTable
                         code={code}
@@ -344,7 +344,7 @@ const Venda = ({ theme }) => {
             </form>
             {desabilitaVenda &&
                 <Alert
-                style={{marginTop: '30px'}}
+                    style={{ marginTop: '30px' }}
                     message="Limite excedido!"
                     description="Não há limite disponível para o funcionário selecionado."
                     type="warning"

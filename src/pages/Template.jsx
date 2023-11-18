@@ -15,6 +15,7 @@ import Venda from './Venda/';
 import Dashboard from './Dashboard/';
 import Estoque from './Estoque/';
 import Backoffice from './Backoffice';
+import Perfil from './Perfil';
 
 import Logo from '../assets/logo.png';
 import Transacoes from './Transacoes';
@@ -69,9 +70,7 @@ const Template = (props) => {
                 {getInitials(theUser.name)}
               </Avatar>
             </div>
-
           }
-
           <Menu.Item key="1" icon={<FontAwesomeIcon icon={faShirt} />}>
             <Link to={`${import.meta.env.VITE_REACT_APP_PATH}painel/venda`}>Venda</Link>
           </Menu.Item>
@@ -88,7 +87,7 @@ const Template = (props) => {
             <Link to={`${import.meta.env.VITE_REACT_APP_PATH}painel/transacoes`}>Transações</Link>
           </Menu.Item>
           <Menu.Item key="6" icon={<FontAwesomeIcon icon={faUserGear} />}>
-            <Link to={`${import.meta.env.VITE_REACT_APP_PATH}painel/backoffice`}>Perfil</Link>
+            <Link to={`${import.meta.env.VITE_REACT_APP_PATH}painel/perfil`}>Perfil</Link>
           </Menu.Item>
         </Menu>
       </Sider>
@@ -131,6 +130,7 @@ const Template = (props) => {
             <Route path={`${import.meta.env.VITE_REACT_APP_PATH}estoque`} element={<Estoque theme={theme} />} />
             <Route path={`${import.meta.env.VITE_REACT_APP_PATH}transacoes`} element={<Transacoes theme={theme} />} />
             <Route path={`${import.meta.env.VITE_REACT_APP_PATH}backoffice`} element={<Backoffice theme={theme} />} />
+            <Route path={`${import.meta.env.VITE_REACT_APP_PATH}perfil`} element={<Perfil theme={theme} />} />
           </Routes>
         </Content>
       </Layout>

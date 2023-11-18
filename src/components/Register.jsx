@@ -2,47 +2,40 @@ import React, { useContext, useState } from "react";
 import { Form, Input, Button, Typography, Card } from "antd";
 import { MyContext } from "../contexts/MyContext";
 
-
 function Register() {
   const { toggleNav, registerUser } = useContext(MyContext);
-  const initialState = {
-    userInfo: {
-      name: "",
-      email: "",
-      password: "",
-    },
-    errorMsg: "",
-    successMsg: "",
-  };
-  const [state, setState] = useState(initialState);
+
+  // Atualizado para incluir todos os campos necessários
+  const [userInfo, setUserInfo] = useState({
+    nome: "",
+    usuario: "", // Anteriormente email
+    senha: "", // Anteriormente password
+    matricula: "",
+    nivel_acesso: "", // Adicione outros campos se necessário
+  });
+
+  const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
 
   // On Submit the Registration Form
   const submitForm = async (values) => {
     const data = await registerUser(values);
     if (data.success) {
-      setState({
-        ...initialState,
-        successMsg: data.message,
+      setSuccessMsg(data.message);
+      setErrorMsg('');
+      // Limpar o formulário
+      setUserInfo({
+        nome: "",
+        usuario: "",
+        senha: "",
+        matricula: "",
+        nivel_acesso: "",
       });
     } else {
-      setState({
-        ...state,
-        successMsg: "",
-        errorMsg: data.message,
-      });
+      setSuccessMsg('');
+      setErrorMsg(data.message);
     }
-    // console.log(values);
   };
-
-  // Show Message on Success or Error
-  let successMsg = "";
-  let errorMsg = "";
-  if (state.errorMsg) {
-    errorMsg = <div className="error-msg">{state.errorMsg}</div>;
-  }
-  if (state.successMsg) {
-    successMsg = <div className="success-msg">{state.successMsg}</div>;
-  }
 
   return (
     <Card
@@ -52,46 +45,30 @@ function Register() {
         width: 350,
       }}
     >
-      <Form onFinish={() => submitForm(state.userInfo)} layout="vertical">
-        <Form.Item label="Nome">
-          <Input
-            name="name"
-            required
-            value={state.userInfo.name}
-            onChange={(e) => setState({ ...state, userInfo: { ...state.userInfo, name: e.target.value } })}
-            placeholder="Digite seu nome completo"
-          />
+      <Form onFinish={submitForm} layout="vertical">
+        {/* Campos atualizados para incluir todos os campos necessários */}
+        <Form.Item label="Nome" name="nome" rules={[{ required: true, message: 'Por favor, insira seu nome!' }]}>
+          <Input placeholder="Digite seu nome completo" />
         </Form.Item>
-        <Form.Item label="Usuário">
-          <Input
-            name="email"
-            required
-            type="text"
-            value={state.userInfo.email}
-            onChange={(e) => setState({ ...state, userInfo: { ...state.userInfo, email: e.target.value } })}
-            placeholder="Digite seu usuário"
-          />
+        <Form.Item label="Usuário (E-mail)" name="usuario" rules={[{ required: true, message: 'Por favor, insira seu usuário!' }]}>
+          <Input placeholder="Digite seu e-mail" />
         </Form.Item>
-        <Form.Item label="Senha">
-          <Input.Password
-            name="password"
-            required
-            value={state.userInfo.password}
-            onChange={(e) => setState({ ...state, userInfo: { ...state.userInfo, password: e.target.value } })}
-            placeholder="Digite sua senha"
-          />
+        <Form.Item label="Senha" name="senha" rules={[{ required: true, message: 'Por favor, insira sua senha!' }]}>
+          <Input.Password placeholder="Digite sua senha" />
         </Form.Item>
-        {errorMsg}
-        {successMsg}
-        <div>
-          <Button type="primary" htmlType="submit">
-            Cadastrar
-          </Button>
-        </div>
+        <Form.Item label="Matricula" name="matricula" rules={[{ required: true, message: 'Por favor, insira a matrícula!' }]}>
+          <Input placeholder="Digite a matrícula" />
+        </Form.Item>
+        <Form.Item label="Nível de acesso" name="nivel_acesso" rules={[{ required: true, message: 'Por favor, defina o nível de acesso!' }]}>
+          <Input placeholder="Nível de acesso" />
+        </Form.Item>
+        {errorMsg && <Typography.Text type="danger">{errorMsg}</Typography.Text>}
+        {successMsg && <Typography.Text type="success">{successMsg}</Typography.Text>}
+        <Button type="primary" htmlType="submit">
+          Cadastrar
+        </Button>
       </Form>
-      <div>
-        <Button variant="outlined" onClick={toggleNav}>Entrar</Button>
-      </div>
+      <Button onClick={toggleNav}>Entrar</Button>
     </Card>
   );
 }
