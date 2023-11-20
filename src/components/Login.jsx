@@ -104,9 +104,9 @@ function Login() {
 
           </Form>
           <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
-        <Button onClick={toggleNav} variant="outlined" style={{ width: '50%' }}>
+        {/* <Button onClick={toggleNav} variant="outlined" style={{ width: '50%' }}>
           Cadastrar
-        </Button>
+        </Button> */}
       </div>
         </Card>
       </div>

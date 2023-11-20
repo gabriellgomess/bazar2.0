@@ -57,7 +57,7 @@ const Template = (props) => {
           defaultSelectedKeys={['1']}
         >
           {!collapsed &&
-            <Title level={5} style={{ color: theme.token.colorTextBase, textAlign: 'center', marginTop: '24px', marginBottom: '24px' }}>Olá, {getFirstAndLastName(theUser.name)} </Title>
+            <Title level={5} style={{ color: theme.token.colorTextBase, textAlign: 'center', marginTop: '24px', marginBottom: '24px' }}>Olá, {getFirstAndLastName(theUser.nome)} </Title>
           }
           {collapsed &&
             <div style={{ width: '100%', height: '66px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -67,7 +67,7 @@ const Template = (props) => {
                   color: '#f56a00',
                 }}
               >
-                {getInitials(theUser.name)}
+                {getInitials(theUser.nome)}
               </Avatar>
             </div>
           }

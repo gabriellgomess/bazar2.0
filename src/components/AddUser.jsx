@@ -1,74 +1,75 @@
-import React, { useState } from 'react';
-import { Form, Input, Button, message } from 'antd';
-import axios from 'axios';
+import React, { useContext, useState } from "react";
+import { Form, Input, Button, Typography, Card } from "antd";
+import { MyContext } from "../contexts/MyContext";
 
-const AddUser = () => {
-  const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
+function Register() {
+  const { toggleNav, registerUser } = useContext(MyContext);
 
-  const onFinish = async (values) => {
-    setLoading(true);
-    try {
-      // Substitua 'your-backend-endpoint' pelo endpoint correto
-      const response = await axios.post('your-backend-endpoint', values);
-      message.success('Registro realizado com sucesso!');
-      form.resetFields();
-    } catch (error) {
-      message.error('Ocorreu um erro no registro!');
-      console.error('Erro no registro:', error);
+  // Atualizado para incluir todos os campos necessários
+  const [userInfo, setUserInfo] = useState({
+    nome: "",
+    usuario: "", // Anteriormente email
+    senha: "", // Anteriormente password
+    matricula: "",
+    nivel_acesso: "", // Adicione outros campos se necessário
+  });
+
+  const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+
+  // On Submit the Registration Form
+  const submitForm = async (values) => {
+    const data = await registerUser(values);
+    if (data.success) {
+      setSuccessMsg(data.message);
+      setErrorMsg('');
+      // Limpar o formulário
+      setUserInfo({
+        nome: "",
+        usuario: "",
+        senha: "",
+        matricula: "",
+        nivel_acesso: "",
+      });
+    } else {
+      setSuccessMsg('');
+      setErrorMsg(data.message);
     }
-    setLoading(false);
   };
 
   return (
-    <Form
-      form={form}
-      name="register"
-      onFinish={onFinish}
-      scrollToFirstError
+    <Card
+      title="Cadastro de Usuário"
+      bordered={false}
+      style={{
+        width: 550,
+      }}
     >
-      <Form.Item
-        name="nome"
-        rules={[{ required: true, message: 'Por favor, insira seu nome!' }]}
-      >
-        <Input placeholder="Nome" />
-      </Form.Item>
-
-      <Form.Item
-        name="matricula"
-        rules={[{ required: true, message: 'Por favor, insira sua matrícula!' }]}
-      >
-        <Input placeholder="Matrícula" />
-      </Form.Item>
-
-      <Form.Item
-        name="usuario"
-        rules={[{ required: true, message: 'Por favor, insira um usuário!' }]}
-      >
-        <Input placeholder="Usuário" />
-      </Form.Item>
-
-      <Form.Item
-        name="senha"
-        rules={[{ required: true, message: 'Por favor, insira uma senha!' }]}
-      >
-        <Input.Password placeholder="Senha" />
-      </Form.Item>
-
-      <Form.Item
-        name="nivel_acesso"
-        rules={[{ required: true, message: 'Por favor, insira o nível de acesso!' }]}
-      >
-        <Input placeholder="Nível de Acesso" />
-      </Form.Item>
-
-      <Form.Item>
-        <Button type="primary" htmlType="submit" loading={loading}>
-          Registrar
+      <Form onFinish={submitForm} layout="vertical">
+        {/* Campos atualizados para incluir todos os campos necessários */}
+        <Form.Item label="Nome" name="nome" rules={[{ required: true, message: 'Por favor, insira seu nome!' }]}>
+          <Input placeholder="Digite seu nome completo" />
+        </Form.Item>
+        <Form.Item label="Usuário (E-mail)" name="usuario" rules={[{ required: true, message: 'Por favor, insira seu usuário!' }]}>
+          <Input placeholder="Digite seu e-mail" />
+        </Form.Item>
+        <Form.Item label="Senha" name="senha" rules={[{ required: true, message: 'Por favor, insira sua senha!' }]}>
+          <Input.Password placeholder="Digite sua senha" />
+        </Form.Item>
+        <Form.Item label="Matricula" name="matricula" rules={[{ required: true, message: 'Por favor, insira a matrícula!' }]}>
+          <Input placeholder="Digite a matrícula" />
+        </Form.Item>
+        <Form.Item label="Nível de acesso" name="nivel_acesso" rules={[{ required: true, message: 'Por favor, defina o nível de acesso!' }]}>
+          <Input placeholder="Nível de acesso" />
+        </Form.Item>
+        {errorMsg && <Typography.Text type="danger">{errorMsg}</Typography.Text>}
+        {successMsg && <Typography.Text type="success">{successMsg}</Typography.Text>}
+        <Button type="primary" htmlType="submit">
+          Cadastrar
         </Button>
-      </Form.Item>
-    </Form>
+      </Form>
+    </Card>
   );
-};
+}
 
-export default AddUser;
+export default Register;

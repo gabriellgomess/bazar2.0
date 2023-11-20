@@ -285,7 +285,7 @@ const Estoque = (props) => {
             ...getColumnSearchProps('valor_sugerido'),
         },
         {
-            title: 'Actions',
+            title: 'Ações',
             dataIndex: 'actions',
             key: 'actions',
             width: '20%',
