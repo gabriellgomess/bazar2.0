@@ -219,7 +219,7 @@ const Venda = ({ theme }) => {
             quantidade_parcelas: selectedParcelOption,
             valor_parcela: showFuncionario ? total * 0.9 / selectedParcelOption : total / selectedParcelOption,
             forma_pagamento: billingType,
-            usuario: theUser.name,
+            usuario: theUser.nome,
             log_transacao: items.map((item) => {
                 return {
                     id: item.id,
@@ -243,10 +243,12 @@ const Venda = ({ theme }) => {
                 return;
             }
         }
+
         if (data.total_pecas <= 0) {
             openNotificationWithIcon('error', 'Erro ao finalizar a venda', 'Não há peças na venda.')
             return;
         }
+
         if (!data.forma_pagamento) {
             openNotificationWithIcon('error', 'Erro ao finalizar a venda', 'Selecione a forma de pagamento')
             return;

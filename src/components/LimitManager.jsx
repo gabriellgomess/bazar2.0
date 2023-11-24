@@ -79,7 +79,7 @@ const LimitManager = () => {
 
         const dados = {
             nome: selectedName,
-            user: theUser.name,
+            user: theUser.nome,
             limite_disponivel: limiteDisponivel,
             limite_total: limiteTotal,
             new_limite_disponivel: newLimiteDisponivel,

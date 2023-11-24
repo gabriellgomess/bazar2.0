@@ -18,7 +18,7 @@ function Home() {
         // If user Logged in
         if (isAuth) {
             // Navigate to Dashboard
-            navigate(`${import.meta.env.VITE_REACT_APP_PATH}painel/venda`);
+            navigate(`${import.meta.env.VITE_REACT_APP_PATH}venda`);
         }
     }, [isAuth, navigate]);
 

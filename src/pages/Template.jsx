@@ -72,22 +72,22 @@ const Template = (props) => {
             </div>
           }
           <Menu.Item key="1" icon={<FontAwesomeIcon icon={faShirt} />}>
-            <Link to={`${import.meta.env.VITE_REACT_APP_PATH}painel/venda`}>Venda</Link>
+            <Link to={`${import.meta.env.VITE_REACT_APP_PATH}venda`}>Venda</Link>
           </Menu.Item>
           <Menu.Item key="2" icon={<FontAwesomeIcon icon={faChartSimple} />}>
-            <Link to={`${import.meta.env.VITE_REACT_APP_PATH}painel/dashboard`}>Dashboard</Link>
+            <Link to={`${import.meta.env.VITE_REACT_APP_PATH}dashboard`}>Dashboard</Link>
           </Menu.Item>
           <Menu.Item key="3" icon={<FontAwesomeIcon icon={faGears} />}>
-            <Link to={`${import.meta.env.VITE_REACT_APP_PATH}painel/backoffice`}>Gerenciamento</Link>
+            <Link to={`${import.meta.env.VITE_REACT_APP_PATH}backoffice`}>Gerenciamento</Link>
           </Menu.Item>
           <Menu.Item key="4" icon={<FontAwesomeIcon icon={faBoxesStacked} />}>
-            <Link to={`${import.meta.env.VITE_REACT_APP_PATH}painel/estoque`}>Estoque</Link>
+            <Link to={`${import.meta.env.VITE_REACT_APP_PATH}estoque`}>Estoque</Link>
           </Menu.Item>
           <Menu.Item key="5" icon={<FontAwesomeIcon icon={faCartShopping} />}>
-            <Link to={`${import.meta.env.VITE_REACT_APP_PATH}painel/transacoes`}>Transações</Link>
+            <Link to={`${import.meta.env.VITE_REACT_APP_PATH}transacoes`}>Transações</Link>
           </Menu.Item>
           <Menu.Item key="6" icon={<FontAwesomeIcon icon={faUserGear} />}>
-            <Link to={`${import.meta.env.VITE_REACT_APP_PATH}painel/perfil`}>Perfil</Link>
+            <Link to={`${import.meta.env.VITE_REACT_APP_PATH}perfil`}>Perfil</Link>
           </Menu.Item>
         </Menu>
       </Sider>
@@ -122,15 +122,14 @@ const Template = (props) => {
             margin: '10px 16px',
             padding: '0px 16px',
             height: 'calc(100vh - 112px)',
-
           }}>
           <Routes>
-            <Route path={`${import.meta.env.VITE_REACT_APP_PATH}venda`} element={<Venda theme={theme} />} />
-            <Route path={`${import.meta.env.VITE_REACT_APP_PATH}dashboard`} element={<Dashboard />} />
-            <Route path={`${import.meta.env.VITE_REACT_APP_PATH}estoque`} element={<Estoque theme={theme} />} />
-            <Route path={`${import.meta.env.VITE_REACT_APP_PATH}transacoes`} element={<Transacoes theme={theme} />} />
-            <Route path={`${import.meta.env.VITE_REACT_APP_PATH}backoffice`} element={<Backoffice theme={theme} />} />
-            <Route path={`${import.meta.env.VITE_REACT_APP_PATH}perfil`} element={<Perfil theme={theme} />} />
+            <Route path={`venda`} element={<Venda theme={theme} />} />
+            <Route path={`dashboard`} element={<Dashboard />} />
+            <Route path={`estoque`} element={<Estoque theme={theme} />} />
+            <Route path={`transacoes`} element={<Transacoes theme={theme} />} />
+            <Route path={`backoffice`} element={<Backoffice theme={theme} />} />
+            <Route path={`perfil`} element={<Perfil theme={theme} />} />
           </Routes>
         </Content>
       </Layout>

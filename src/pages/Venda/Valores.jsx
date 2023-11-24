@@ -11,7 +11,7 @@ const Valores = ({ theme, handleChangeBillingType, showCheckbox, onChange, showF
             <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <div style={{ display: 'flex', gap: '10px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        <Typography.Title style={{margin: 0}}  level={5}>Forma de Pagamento</Typography.Title>
+                        <Typography.Title style={{ margin: 0 }} level={5}>Forma de Pagamento</Typography.Title>
                         <Select
                             placeholder="Forma de Pagamento"
                             style={{
@@ -51,8 +51,8 @@ const Valores = ({ theme, handleChangeBillingType, showCheckbox, onChange, showF
                     </div>
 
                     {showFuncionario &&
-                         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                            <Typography.Title style={{margin: 0}} level={5}>Funcionário</Typography.Title>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            <Typography.Title style={{ margin: 0 }} level={5}>Funcionário</Typography.Title>
                             <AutoComplete
                                 style={{
                                     width: 200,

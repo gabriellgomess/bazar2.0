@@ -40,7 +40,7 @@ const AddFunc = () => {
             return;
         }
 
-        axios.post('https://amigosdacasa.org.br/bazar-amigosdacasa/api/adiciona_funcionario.php', { nome: nome, salario: salario, limite: limiteDisponivel, user: theUser.name })
+        axios.post('https://amigosdacasa.org.br/bazar-amigosdacasa/api/adiciona_funcionario.php', { nome: nome, salario: salario, limite: limiteDisponivel, user: theUser.nome })
             .then((res) => {
                 if (res.data.status === 'success') {
                     openNotificationWithIcon('success', 'Funcionário adicionado com sucesso!', '');

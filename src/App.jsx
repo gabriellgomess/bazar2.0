@@ -72,7 +72,7 @@ const App = () => {
               <Routes>
                 <Route path={`${import.meta.env.VITE_REACT_APP_PATH}`} element={<Home />} />
                 <Route
-                  path={`${import.meta.env.VITE_REACT_APP_PATH}painel/*`}
+                  path={`${import.meta.env.VITE_REACT_APP_PATH}*`}
                   element={
                     <WithAuthentication>
                       <Template theme={theme} />
