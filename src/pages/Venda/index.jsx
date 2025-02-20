@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Button, notification, Alert } from 'antd';
+import { Button, notification, Alert, Select } from 'antd';
 import axios from 'axios';
 import { MyContext } from '../../contexts/MyContext';
 import ItemsTable from './ItemsTable';
@@ -26,6 +26,7 @@ const Venda = ({ theme }) => {
     const [showFuncionario, setShowFuncionario] = useState(false);
     const [parcelOptions, setParcelOptions] = useState([{ value: '1', label: '1x' }]);
     const [selectedParcelOption, setSelectedParcelOption] = useState('1');
+    const [roundingValue, setRoundingValue] = useState(null);  // Novo estado para valor de arredondamento
 
     // API de notificação
     const [api, contextHolder] = notification.useNotification();
@@ -59,11 +60,6 @@ const Venda = ({ theme }) => {
                     setItems([...items, item]);
                     setCode('');
                     setQuantity(1);
-
-                    const valor_compra = total + item.valor_sugerido * quantity;
-                    updateParcelOptions(valor_compra);
-
-
                 } else {
                     console.error('Erro: Não foi possível encontrar a peça', res);
                     openNotificationWithIcon('error', 'Erro ao buscar peça', 'Não foi possível encontrar a peça. Por favor, verifique o código e tente novamente.')
@@ -87,7 +83,6 @@ const Venda = ({ theme }) => {
                 ]);
             }
         }
-
     };
 
     const options = funcionarios.map((funcionario) => {
@@ -100,7 +95,6 @@ const Venda = ({ theme }) => {
         if (value === 'Desconto em Folha') {
             setShowFuncionario(true);
             setShowCheckbox(false);
-
         } else {
             setShowFuncionario(false);
             setShowCheckbox(true);
@@ -124,9 +118,7 @@ const Venda = ({ theme }) => {
     const handleKeyPress = (event) => {
         if (event.key === 'Enter') {
             handleGetPecas();
-
         }
-
     };
 
     function formatarValor(valor) {
@@ -137,45 +129,45 @@ const Venda = ({ theme }) => {
         }
     }
 
-    useEffect(() => {
-        let total = 0;
-        items.forEach((item) => {
-            total += item.valor_sugerido * item.quantidade;
-        });
-        if (billingType == "Acolhido") {
-            total = 0;
-            setTotal(total);
-        } else {
-            setTotal(total);
+    const calculateTotal = () => {
+        let newTotal = items.reduce((acc, item) => acc + item.valor_sugerido * item.quantidade, 0);
+        if (billingType === "Acolhido") {
+            newTotal = 0;
         }
+        if (billingType === "Desconto em Folha" || showFuncionario) {
+            newTotal = newTotal * 0.9; // Aplicar desconto de 10%
+        }
+        return newTotal;
+    };
 
-
-    }, [items, billingType]);
+    useEffect(() => {
+        let newTotal = calculateTotal();
+        if (roundingValue !== null) {
+            const remainder = newTotal % roundingValue;
+            newTotal = remainder === 0 ? newTotal : newTotal + roundingValue - remainder;
+        }
+        setTotal(newTotal);
+        updateParcelOptions(newTotal);
+    }, [items, billingType, roundingValue, showFuncionario]);
 
     const habilita_venda = () => {
-        if (billingType == "Desconto em Folha") {
-            const habilitar_venda = formatarValor(limiteDisponivel) - (total * 0.9)
-            if (habilitar_venda <= 0) {
-                setDesabilitaVenda(true)
-            } else {
-                setDesabilitaVenda(false)
-            }
+        if (billingType === "Desconto em Folha") {
+            const habilitar_venda = formatarValor(limiteDisponivel) - (total * 0.9);
+            setDesabilitaVenda(habilitar_venda <= 0);
         } else {
-            setDesabilitaVenda(false)
+            setDesabilitaVenda(false);
         }
-
-    }
+    };
 
     // UseEffect para habilitar a venda
     useEffect(() => {
-        habilita_venda()
-    }, [total, limiteDisponivel, billingType, nomeFuncionario])
+        habilita_venda();
+    }, [total, limiteDisponivel, billingType, nomeFuncionario]);
 
     const onChange = (e) => {
         if (e.target.checked) {
             setShowFuncionario(true);
-        }
-        else {
+        } else {
             setShowFuncionario(false);
             setLimiteDisponivel(0);
             setLimiteTotal(0);
@@ -185,8 +177,7 @@ const Venda = ({ theme }) => {
     const handleSetName = (value) => {
         setNomeFuncionario(value);
         checkLimit(value);
-
-    }
+    };
 
     const checkLimit = (nome) => {
         if (!nome) {
@@ -199,7 +190,6 @@ const Venda = ({ theme }) => {
                 if (res.data) {
                     setLimiteTotal(res.data.limite_total);
                     setLimiteDisponivel(res.data.limite_disponivel);
-
                 } else {
                     console.log("Resposta recebida, mas sem dados de limite.");
                 }
@@ -207,15 +197,16 @@ const Venda = ({ theme }) => {
             .catch((err) => {
                 console.log("Erro: ", err);
             });
-    }
+    };
 
     const handleViewData = () => {
+        const totalPecas = items.reduce((acc, item) => acc + Number(item.quantidade), 0);
 
         const data = {
             nome_funcionario: nomeFuncionario,
             data_compra: new Date().toISOString().slice(0, 10),
             valor_compra: showFuncionario ? total * 0.9 : total,
-            total_pecas: items.length,
+            total_pecas: totalPecas,
             quantidade_parcelas: selectedParcelOption,
             valor_parcela: showFuncionario ? total * 0.9 / selectedParcelOption : total / selectedParcelOption,
             forma_pagamento: billingType,
@@ -236,32 +227,31 @@ const Venda = ({ theme }) => {
                 }
             }),
             check_func: showFuncionario ? 1 : 0,
-        }
+        };
+
         if (data.check_func === 1 || data.forma_pagamento === 'Desconto em Folha') {
             if (!data.nome_funcionario) {
-                openNotificationWithIcon('error', 'Erro ao finalizar a venda', 'Selecione o funcionário.')
+                openNotificationWithIcon('error', 'Erro ao finalizar a venda', 'Selecione o funcionário.');
                 return;
             }
         }
 
         if (data.total_pecas <= 0) {
-            openNotificationWithIcon('error', 'Erro ao finalizar a venda', 'Não há peças na venda.')
+            openNotificationWithIcon('error', 'Erro ao finalizar a venda', 'Não há peças na venda.');
             return;
         }
 
         if (!data.forma_pagamento) {
-            openNotificationWithIcon('error', 'Erro ao finalizar a venda', 'Selecione a forma de pagamento')
+            openNotificationWithIcon('error', 'Erro ao finalizar a venda', 'Selecione a forma de pagamento');
             return;
         }
 
         axios.post('https://amigosdacasa.org.br/bazar-amigosdacasa/api/finaliza_venda.php', data)
             .then((res) => {
                 console.log("Resposta: ", res);
-                // Verifica se a venda foi finalizada com sucesso e exibe uma notificação de sucesso
                 if (res.data && res.data.success) {
                     openNotificationWithIcon('success', 'Venda finalizada com sucesso', 'Sua venda foi processada e finalizada.');
                     console.log("Resposta: ", res);
-                    // Aqui você pode limpar o estado do formulário ou redirecionar o usuário
                     setItems([]);
                     setTotal(0);
                     setCode('');
@@ -277,38 +267,36 @@ const Venda = ({ theme }) => {
                     setParcelOptions([{ value: '1', label: '1x' }]);
 
                 } else {
-                    // Se a resposta não for sucesso, exibe uma notificação de erro
                     openNotificationWithIcon('error', 'Erro ao finalizar a venda', 'Não foi possível processar a venda. Por favor, tente novamente.');
                 }
             })
             .catch((err) => {
-                // Se houver um erro na requisição, exibe uma notificação de erro
                 openNotificationWithIcon('error', 'Erro ao finalizar a venda', 'Houve um problema ao conectar ao servidor. Por favor, verifique sua conexão.');
                 console.log("Erro: ", err);
             });
+    };
 
-    }
+    const handleRoundingChange = (value) => {
+        setRoundingValue(parseInt(value, 10));
+    };
 
     return (
         <div>
             <form>
                 <style>
                     {`
-                
-                .customer-input{
-                    height: 5rem;
-                    font-size: 2rem !important;
-                    font-weight: 700;
-                }
-                .customer-input>div>span{
-                    font-size: 2rem !important;
-                }               `
-
+                    .customer-input {
+                        height: 5rem;
+                        font-size: 2rem !important;
+                        font-weight: 700;
                     }
+                    .customer-input > div > span {
+                        font-size: 2rem !important;
+                    }
+                    `}
                 </style>
                 {contextHolder}
                 <div style={{ width: '100%', display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '30px', paddingTop: '0' }}>
-
                     <ItemsTable
                         code={code}
                         handleCodeChange={handleCodeChange}
@@ -339,10 +327,20 @@ const Venda = ({ theme }) => {
                         billingType={billingType}
                     />
                 </div>
-                <Button type="primary" onClick={() => handleViewData()} style={{ marginTop: '30px' }} disabled={desabilitaVenda} >
+                <Select
+                    placeholder="Selecione um valor"
+                    style={{ width: 200, marginTop: '30px' }}
+                    options={[
+                        { value: '5', label: '5' },
+                        { value: '10', label: '10' },
+                        { value: '50', label: '50' },
+                        { value: '100', label: '100' },
+                    ]}
+                    onChange={handleRoundingChange}
+                />
+                <Button type="primary" onClick={handleViewData} style={{ marginTop: '30px' }} disabled={desabilitaVenda}>
                     Finalizar Venda
                 </Button>
-
             </form>
             {desabilitaVenda &&
                 <Alert
@@ -353,7 +351,6 @@ const Venda = ({ theme }) => {
                     showIcon
                 />
             }
-
         </div>
     );
 };

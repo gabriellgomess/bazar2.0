@@ -157,7 +157,12 @@ const Transacoes = () => {
             { title: 'Quantidade', dataIndex: 'quantidade', key: 'quantidade' },
             { title: 'Tag', dataIndex: 'tag', key: 'tag' },
             { title: 'Valor sugerido', dataIndex: 'valor_sugerido', key: 'valor_sugerido' },
-            { title: 'Valor desc 10%', dataIndex: 'desc_func_10', key: 'desc_func_10' },
+            { 
+                title: 'Valor desc 10%', 
+                dataIndex: 'desc_func_10', 
+                key: 'desc_func_10',
+                
+            },
 
         ];
 
@@ -196,7 +201,7 @@ const Transacoes = () => {
             title: 'Total de Peças',
             dataIndex: 'total_pecas',
             key: 'total_pecas',
-            width: '10%'
+            width: '10%'            
         },
         {
             parcelas: 'parcelas',
