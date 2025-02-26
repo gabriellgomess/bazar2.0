@@ -60,13 +60,6 @@ const ItemsTable = ({ items, onDelete, code, handleCodeChange, handleKeyPress, q
                 <Typography.Title level={5}>Quantidade</Typography.Title>
                 <Input className='input_quant customer-input' type="text" onChange={(e) => setQuantity(e.target.value)} value={quantity} onKeyPress={handleKeyPress} />
             </div>
-            <Badge count={quantidadeTotal}>
-          <Avatar style={{backgroundColor: '#52c41a'}} shape="square" size="large">
-            <FontAwesomeIcon icon={faBasketShopping} />
-                </Avatar>
-            </Badge>
-
-
         </div>
         <Table columns={columns} dataSource={items} size="small" pagination={{ pageSize: 10 }} scroll={{y: 200 }}/>
     </div>

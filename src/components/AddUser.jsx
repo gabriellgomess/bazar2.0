@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { Form, Input, Button, Typography, Card } from "antd";
+import { Form, Input, Button, Typography, Card, Select} from "antd";
 import { MyContext } from "../contexts/MyContext";
 
 function Register() {
@@ -10,7 +10,6 @@ function Register() {
     nome: "",
     usuario: "", // Anteriormente email
     senha: "", // Anteriormente password
-    matricula: "",
     nivel_acesso: "", // Adicione outros campos se necessário
   });
 
@@ -19,6 +18,7 @@ function Register() {
 
   // On Submit the Registration Form
   const submitForm = async (values) => {
+    console.log(values);
     const data = await registerUser(values);
     if (data.success) {
       setSuccessMsg(data.message);
@@ -28,7 +28,6 @@ function Register() {
         nome: "",
         usuario: "",
         senha: "",
-        matricula: "",
         nivel_acesso: "",
       });
     } else {
@@ -56,11 +55,13 @@ function Register() {
         <Form.Item label="Senha" name="senha" rules={[{ required: true, message: 'Por favor, insira sua senha!' }]}>
           <Input.Password placeholder="Digite sua senha" />
         </Form.Item>
-        <Form.Item label="Matricula" name="matricula" rules={[{ required: true, message: 'Por favor, insira a matrícula!' }]}>
-          <Input placeholder="Digite a matrícula" />
-        </Form.Item>
         <Form.Item label="Nível de acesso" name="nivel_acesso" rules={[{ required: true, message: 'Por favor, defina o nível de acesso!' }]}>
-          <Input placeholder="Nível de acesso" />
+          <Select placeholder="Selecione um nível de acesso!">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </Select>
+          {/* <Input placeholder="Nível de acesso" /> */}
         </Form.Item>
         {errorMsg && <Typography.Text type="danger">{errorMsg}</Typography.Text>}
         {successMsg && <Typography.Text type="success">{successMsg}</Typography.Text>}
