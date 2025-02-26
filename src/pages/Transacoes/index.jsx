@@ -7,6 +7,7 @@ import * as XLSX from 'xlsx';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFileExcel } from '@fortawesome/free-solid-svg-icons';
+import { render } from 'react-dom';
 
 const ExportToExcel = ({ apiData, fileName }) => {
     const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
@@ -141,6 +142,7 @@ const Transacoes = () => {
             .then((response) => {
                 setDataSource(response.data);
                 setFilteredData(response.data); // Inicializa filteredData com os dados recebidos
+                console.log(response.data);
             })
             .catch((error) => {
                 // Handle error
@@ -156,13 +158,8 @@ const Transacoes = () => {
             { title: 'Descrição', dataIndex: 'descricao', key: 'descricao' },
             { title: 'Quantidade', dataIndex: 'quantidade', key: 'quantidade' },
             { title: 'Tag', dataIndex: 'tag', key: 'tag' },
-            { title: 'Valor sugerido', dataIndex: 'valor_sugerido', key: 'valor_sugerido' },
-            { 
-                title: 'Valor desc 10%', 
-                dataIndex: 'desc_func_10', 
-                key: 'desc_func_10',
-                
-            },
+            { title: 'Valor', dataIndex: record.tipo == 'externo' ? 'valor_sugerido' : 'desc_func_10', key: 'valor_sugerido', render: (text) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(text) }
+            // { title: 'Valor desc 10%', dataIndex: 'desc_func_10', key: 'desc_func_10'},
 
         ];
 
@@ -194,14 +191,14 @@ const Transacoes = () => {
             dataIndex: 'nome',
             key: 'nome',
             ...getColumnSearchProps('nome'),
-            width: '25%'
+            width: '20%'
         },
         {
             total_pecas: 'total_pecas',
             title: 'Total de Peças',
             dataIndex: 'total_pecas',
             key: 'total_pecas',
-            width: '10%'            
+            width: '8%'            
         },
         {
             parcelas: 'parcelas',
@@ -235,19 +232,21 @@ const Transacoes = () => {
                 { text: 'Venda Externa Promo', value: 'externo promo' },
             ],
             onFilter: (value, record) => record.tipo.indexOf(value) === 0,
-        },
-        {
-            usuario: 'usuario',
-            title: 'Usuário',
-            dataIndex: 'usuario',
-            key: 'usuario'
-        },
+        },        
         {
             valor_compra: 'valor_compra',
             title: 'Valor da Compra',
             dataIndex: 'valor_compra',
             key: 'valor_compra',
-            sortDirections: ['descend', 'ascend']
+            sortDirections: ['descend', 'ascend'],
+            render: (text) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(text)
+        },
+        {
+            cartao_presente_valor: 'cartao_presente_valor',
+            title: 'Cartão Presente',
+            dataIndex: 'cartao_presente_valor',
+            key: 'cartao_presente_valor',
+            render: (text) => text ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(text) : '-'           
         },
         {
             data: 'data',
@@ -256,7 +255,13 @@ const Transacoes = () => {
             key: 'data',
             sorter: (a, b) => a.data.localeCompare(b.data),
             sortDirections: ['descend', 'ascend']
-        }
+        },
+        {
+            usuario: 'usuario',
+            title: 'Usuário',
+            dataIndex: 'usuario',
+            key: 'usuario'
+        },
 
     ];
 
@@ -277,10 +282,10 @@ const Transacoes = () => {
                 onChange={handleTableChange}
                 rowKey="id"
                 expandable={{ expandedRowRender }}
-                scroll={{y: 350 }}
+                scroll={{y: 650 }}
                 size='small'
             />
-            <ExportToExcel apiData={filteredData} fileName="nome_do_arquivo_filtrado" />
+            <ExportToExcel apiData={filteredData} fileName="relatorio_transacao" />
         </>
     );
 };
